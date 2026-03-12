@@ -1,6 +1,8 @@
 let table;
 function get_fakultas(dt){
-    var val = $(dt).val();
+    var selected = $(dt).find('option:selected');
+    var val = selected.data('kampus');
+    console.log(val);
     $.ajax({
         url: BASE_URL + 'kader/get-fakultas',
         type: 'get',
@@ -15,7 +17,8 @@ function get_fakultas(dt){
 }
 
 function get_prodi(dt){
-    var val = $(dt).val();
+    var selected = $(dt).find('option:selected');
+    var val = selected.data('fakultas');
     console.log(val);
     $.ajax({
         url: BASE_URL + 'kader/get-prodi',
@@ -36,8 +39,19 @@ $(() => {
         width: '100%',
     });
 
-
     $('#prodi').select2({
+        width: '100%',
+    });
+
+    $('#kampus').select2({
+        width: '100%',
+    });
+
+    $('#perkaderan').select2({
+        width: '100%',
+    });
+
+    $('#perkaderanKhusus').select2({
         width: '100%',
     });
 
@@ -102,6 +116,7 @@ $(() => {
     }
 
     $('#form-kader').on('submit', function (e) {
+
         e.preventDefault();
 
         var data = new FormData(this);
@@ -119,9 +134,16 @@ $(() => {
             },
             success: (res) => {
                 $('#modal-kader').find('.modal-dialog').LoadingOverlay('hide', true);
+
                 if (res.status === true) {
-                    window.location.reload();
-                } else {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: res.msg,
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.history.back(); // kembali ke halaman sebelumnya
+                    });
                 }
             },
             error: ({ status, responseJSON }) => {
@@ -225,14 +247,21 @@ $(() => {
 
     table = $('#table-data').DataTable({
         language: dtLang,
-        serverSide: true,
-        processing: true,
+            serverSide: false,
+            processing: true,
         ajax: {
             url: BASE_URL + 'kader/data',
             type: 'get',
-            dataType: 'json'
+            dataType: 'json',
+            data: function(d){
+                d.fakultas = $('#fakultas').val();
+                d.prodi = $('#prodi').val();
+                d.kampus = $('#kampus').val();
+                d.perkaderan = $('#perkaderan').val();
+                d.perkaderanKhusus = $('#perkaderanKhusus').val();
+            }
         },
-        order: [[7, 'desc']],
+        order: [[0, 'asc']],
         columnDefs: [{
             targets: [0, 6],
             orderable: false,
@@ -255,7 +284,7 @@ $(() => {
         }, {
             data: null,
             render: function(data, type, row) {
-                return "Pimpinan Cabang : " + data.pc + "<br>" + "Pimpinan Komisariat : " + data.komisariat + "<br>" + "Universitas : " + data.universitas+ "<br>" + "Fakultas : " + data.fakultas+ "<br>" + "Program Studi : " + data.prodi;
+                return "Pimpinan Cabang : " + (data.pc ?? '-') + "<br>" + "Pimpinan Komisariat : " + (data.komisariat ?? '-') + "<br>" + "Universitas : " + (data.ref_universitas?.[0]?.kampus ?? '-') + "<br>" + "Fakultas : " + (data.ref_fakultas?.[0]?.fakultas ?? '-') + "<br>" + "Program Studi : " + (data.ref_prodi?.[0]?.prodi ?? '-');
             }
         },{
             data: null,
@@ -342,4 +371,21 @@ $(() => {
             data: 'created_at'
         }]
     })
+
+
+    //filter
+
+    $('.btn-filter').on('click', function(e){
+        e.preventDefault();
+        table.ajax.url(BASE_URL + 'kader/filter').load();
+    });
+
+    $('.btn-reset').on('click', function () {
+        $('#fakultas').val('').trigger('change');
+        $('#prodi').val('').trigger('change');
+        $('#kampus').val('').trigger('change');
+        $('#perkaderan').val('').trigger('change');
+        $('#perkaderanKhusus').val('').trigger('change');
+        table.ajax.url(BASE_URL + 'kader/data').load();
+    });
 })

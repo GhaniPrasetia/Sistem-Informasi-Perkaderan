@@ -27,36 +27,46 @@ class DashboardController extends Controller
                         })
                         ->values();
 
-        $perguruanTinggi = Kader::select('universitas')->count();
-        $fakultas = Kader::select('fakultas')->count();
-        $prodi = Kader::select('prodi')->count();
+        $perguruanTinggi = Kader::select('universitas')->distinct()->get();
+        $jumlahPerguruanTinggi = count($perguruanTinggi);
+
+        $fakultas = Kader::select('fakultas')->distinct()->get();
+        $jumlahFakultas = count($fakultas);
+
+        $prodi = Kader::select('prodi')->distinct()->get();
+        $jumlahProdi = count($prodi);
+
         $kader = Kader::count();
 
         if(session('role_id')==3){
-            $chartKampus = Kader::select('universitas', DB::raw('count(*) as total'))
+            $chartKampus = Kader::with('ref_universitas')
+                        ->select('universitas', DB::raw('count(*) as total'))
                         ->where('user_id', Auth::user()->id)
                         ->groupBy('universitas')
+                        ->with('ref_universitas')
                         ->get()
                         ->transform(function ($item) {
-                            $item->universitas = strtoupper($item->universitas);
+                            $item->universitas = $item->ref_universitas[0]->kampus;
                             $item->total = (int) $item->total;
                             return $item;
                         });
 
-
             $chartFakultas = Kader::select('fakultas', DB::raw('count(*) as total'))
             ->where('user_id', Auth::user()->id)
                     ->groupBy('fakultas')
-                    ->get()->each(function ($items) {
-                        $items->fakultas = strtoupper($items->fakultas);
+                    ->with('ref_fakultas')
+                    ->get()
+                    ->each(function ($items) {
+                        $items->fakultas = $items->ref_fakultas[0]->fakultas;
                         $items->total = (int) $items->total;
                     });
 
             $chartProdi = Kader::select('prodi', DB::raw('count(*) as total'))
             ->where('user_id', Auth::user()->id)
                     ->groupBy('prodi')
-                    ->get()->each(function ($items) {
-                        $items->prodi = strtoupper($items->prodi);
+                    ->get()
+                    ->each(function ($items) {
+                        $items->prodi =  $items->ref_prodi[0]->prodi;
                         $items->total = (int) $items->total;
                     });
 
@@ -129,28 +139,33 @@ class DashboardController extends Controller
         }else{
 
             $chartKampus = Kader::select('universitas', DB::raw('count(*) as total'))
-                                                ->groupBy('universitas')
-                        ->get()
-                        ->transform(function ($item) {
-                            $item->universitas = strtoupper($item->universitas);
-                            $item->total = (int) $item->total;
-                            return $item;
-                        });
+                            ->groupBy('universitas')
+                            ->with('ref_universitas')
+                            ->get()
+                            ->transform(function ($item) {
+                                $item->universitas = $item->ref_universitas[0]->kampus;
+                                $item->total = (int) $item->total;
+                                return $item;
+                            });
 
 
             $chartFakultas = Kader::select('fakultas', DB::raw('count(*) as total'))
-                                ->groupBy('fakultas')
-                    ->get()->each(function ($items) {
-                        $items->fakultas = strtoupper($items->fakultas);
-                        $items->total = (int) $items->total;
-                    });
+                            ->groupBy('fakultas')
+                            ->with('ref_fakultas')
+                            ->get()
+                            ->each(function ($items) {
+                                $items->fakultas = $items->ref_fakultas[0]->fakultas;
+                                $items->total = (int) $items->total;
+                            });
 
             $chartProdi = Kader::select('prodi', DB::raw('count(*) as total'))
-                                ->groupBy('prodi')
-                    ->get()->each(function ($items) {
-                        $items->prodi = strtoupper($items->prodi);
-                        $items->total = (int) $items->total;
-                    });
+                            ->groupBy('prodi')
+                            ->with('ref_prodi')
+                            ->get()
+                            ->each(function ($items) {
+                                $items->prodi =  $items->ref_prodi[0]->prodi;
+                                $items->total = (int) $items->total;
+                            });
 
             $chartKomisariat = Kader::select('komisariat', DB::raw('count(*) as total'))
                                 ->groupBy('komisariat')
@@ -216,11 +231,12 @@ class DashboardController extends Controller
                     ->values();
         }
 
+
         return view('contents.dashboard.home', [
             'title' => 'Beranda',
-            'perguruanTinggi' => $perguruanTinggi,
-            'fakultas' => $fakultas,
-            'prodi' => $prodi,
+            'perguruanTinggi' => $jumlahPerguruanTinggi,
+            'fakultas' => $jumlahFakultas,
+            'prodi' => $jumlahProdi,
             'kader' => $kader,
             'chartKampus' => $chartKampus,
             'chartFakultas' => $chartFakultas,
@@ -232,6 +248,8 @@ class DashboardController extends Controller
             'tahunPerkaderan' => $tahunPerkaderan,
             'tahun' => "",
         ]);
+
+        // return $chartKampus;
     }
 
     public function filter_tahun(Request $request)
@@ -273,18 +291,6 @@ class DashboardController extends Controller
                     return strtoupper($tahun_perkaderan);
                 })
                 ->values();
-            $chartKampus = Kader::with('ref_perkaderan')
-            ->whereHas('ref_perkaderan', function($query) use ($request) {
-                $query->where('tahun_perkaderan', $request->tahun);
-            })->select('universitas', DB::raw('count(*) as total'))
-                        ->where('user_id', Auth::user()->id)
-                        ->groupBy('universitas')
-                        ->get()
-                        ->transform(function ($item) {
-                            $item->universitas = strtoupper($item->universitas);
-                            $item->total = (int) $item->total;
-                            return $item;
-                        });
 
             $chartFakultas = Kader::with('ref_perkaderan')
             ->whereHas('ref_perkaderan', function($query) use ($request) {
@@ -293,7 +299,8 @@ class DashboardController extends Controller
             ->where('user_id', Auth::user()->id)
                     ->groupBy('fakultas')
                     ->get()->each(function ($items) {
-                        $items->fakultas = strtoupper($items->fakultas);
+                        $items->fakultas = $items->ref_fakultas[0]->fakultas;
+                        // $items->fakultas = strtoupper($items->fakultas);
                         $items->total = (int) $items->total;
                     });
 
@@ -304,7 +311,8 @@ class DashboardController extends Controller
             ->where('user_id', Auth::user()->id)
                     ->groupBy('prodi')
                     ->get()->each(function ($items) {
-                        $items->prodi = strtoupper($items->prodi);
+                        $items->prodi =  $items->ref_prodi[0]->prodi;
+                        // $items->prodi = strtoupper($items->prodi);
                         $items->total = (int) $items->total;
                     });
 
@@ -409,7 +417,8 @@ class DashboardController extends Controller
                                                 ->groupBy('universitas')
                         ->get()
                         ->transform(function ($item) {
-                            $item->universitas = strtoupper($item->universitas);
+                            $item->universitas = $item->ref_universitas[0]->kampus;
+                            // $item->universitas = strtoupper($item->universitas);
                             $item->total = (int) $item->total;
                             return $item;
                         });
@@ -421,7 +430,9 @@ class DashboardController extends Controller
             })->select('fakultas', DB::raw('count(*) as total'))
                                 ->groupBy('fakultas')
                     ->get()->each(function ($items) {
-                        $items->fakultas = strtoupper($items->fakultas);
+                        $items->fakultas = $items->ref_fakultas[0]->fakultas;
+
+                        // $items->fakultas = strtoupper($items->fakultas);
                         $items->total = (int) $items->total;
                     });
 
@@ -431,7 +442,9 @@ class DashboardController extends Controller
             })->select('prodi', DB::raw('count(*) as total'))
                                 ->groupBy('prodi')
                     ->get()->each(function ($items) {
-                        $items->prodi = strtoupper($items->prodi);
+                        $items->prodi =  $items->ref_prodi[0]->prodi;
+
+                        // $items->prodi = strtoupper($items->prodi);
                         $items->total = (int) $items->total;
                     });
 
@@ -511,7 +524,8 @@ class DashboardController extends Controller
                     ->values();
         }
 
-        return view('contents.dashboard.home', [
+        return
+        view('contents.dashboard.home',[
             'title' => 'Beranda',
             'perguruanTinggi' => $perguruanTinggi,
             'fakultas' => $fakultas,

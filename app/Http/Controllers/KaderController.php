@@ -29,7 +29,6 @@ class KaderController extends Controller
 {
     public function index(Request $request)
     {
-
         $cabang = Cabang::
             where('deleted_at', null)
             ->get();
@@ -46,10 +45,62 @@ class KaderController extends Controller
             where('deleted_at', null)
             ->get();
 
-
         $prodi = Prodi::
             where('deleted_at', null)
             ->get();
+
+        // Filter Data
+        $FilterCabang = Kader::with('ref_universitas')
+                            ->get()
+                            ->pluck('ref_universitas')
+                            ->flatten()
+                            ->pluck('kampus')
+                            ->unique()
+                            ->values();
+
+        $FilterKampus = Kader::with('ref_universitas')
+                            ->get()
+                            ->pluck('ref_universitas')
+                            ->flatten()
+                            ->pluck('kampus')
+                            ->unique()
+                            ->values();
+
+        $FilterKomisariat = Komisariat::
+            where('deleted_at', null)
+            ->get();
+
+        $FilterFakultas = Kader::with('ref_fakultas')
+                            ->get()
+                            ->pluck('ref_fakultas')
+                            ->flatten()
+                            ->pluck('fakultas')
+                            ->unique()
+                            ->values();
+
+        $Filterprodi = Kader::with('ref_prodi')
+                            ->get()
+                            ->pluck('ref_prodi')
+                            ->flatten()
+                            ->pluck('prodi')
+                            ->unique()
+                            ->values();
+
+        $FilterPerkaderan = Kader::with('ref_perkaderan')
+                            ->get()
+                            ->pluck('ref_perkaderan')
+                            ->flatten()
+                            ->pluck('kegiatan_perkaderan')
+                            ->unique()
+                            ->values();
+
+        $FilterPerkaderanPimpinan = Kader::with('ref_pimpinan')
+                            ->get()
+                            ->pluck('ref_pimpinan')
+                            ->flatten()
+                            ->pluck('kegiatan_pimpinan')
+                            ->unique()
+                            ->values();
 
         return view('contents.kader.list', [
             'title' => 'Kader',
@@ -58,7 +109,31 @@ class KaderController extends Controller
             'fakultas' => $fakultas,
             'prodi' => $prodi,
             'komisariat' => $komisariat,
+            'FilterCabang' => $FilterCabang,
+            'FilterKampus' => $FilterKampus,
+            'FilterKomisariat' => $FilterKomisariat,
+            'FilterFakultas' => $FilterFakultas,
+            'Filterprodi' => $Filterprodi,
+            'FilterPerkaderan' => $FilterPerkaderan,
+            'FilterPerkaderanPimpinan' => $FilterPerkaderanPimpinan,
         ]);
+
+
+
+        // return[
+        //     'title' => 'Kader',
+        //     'cabang' => $cabang,
+        //     'kampus' => $kampus,
+        //     'fakultas' => $fakultas,
+        //     'prodi' => $prodi,
+        //     'komisariat' => $komisariat,
+        //     'FilterCabang' => $FilterCabang,
+        //     'FilterKampus' => $FilterKampus,
+        //     'FilterKomisariat' => $FilterKomisariat,
+        //     'FilterFakultas' => $FilterFakultas,
+        //     'Filterprodi' => $Filterprodi,
+        //     'FilterPerkaderan' => $FilterPerkaderan,
+        // ];
     }
 
     public function data(Request $request)
@@ -66,10 +141,12 @@ class KaderController extends Controller
         $role_id = session('role_id');
 
         if ($role_id === 2) {
-            $list = Kader::with('ref_pimpinan', 'ref_perkaderan')->get();
+            $list = Kader::with('ref_pimpinan', 'ref_perkaderan','ref_universitas','ref_fakultas','ref_prodi')->get();
         } else {
-            $list = Kader::where('user_id', Auth::user()->id)->with('ref_pimpinan', 'ref_perkaderan')->get();
+            $list = Kader::where('user_id', Auth::user()->id)->with('ref_pimpinan', 'ref_perkaderan','ref_universitas','ref_fakultas','ref_prodi')->get();
         }
+
+        // return $list;
 
         return DataTables::of($list)
             ->addIndexColumn()
@@ -79,90 +156,92 @@ class KaderController extends Controller
     public function store(Request $request)
     {
         $id = $request->input('id');
-        if ($id) {
-            $request->validate([
-                // 'nama_lengkap' => 'required',
-                // 'no_hp' => 'required',
-                // 'email' => 'required',
-                // 'sosial_media' => 'required',
-                // 'jenis_kelamin' => 'required',
-                // 'agama' => 'required',
-                // 'kebangsaan' => 'required',
-                // 'status_menikah' => 'required',
-                // 'tanggal_lahir' => 'required',
-                // 'tempat_lahir' => 'required',
-                // 'pc' => 'required',
-                // 'komisariat' => 'required',
-                // 'universitas' => 'required',
-                // 'fakultas' => 'required',
-                // 'prodi' => 'required',
-                // 'domisili' => 'required',
-                // 'foto' => 'image|mimes:jpeg,png,jpg|max:5240',
-            ], [
-                // 'nama_kader.required' => '<strong style="color: red;">Nama Lengkap wajib diisi.</strong>',
-                // 'no_hp.required' => '<strong style="color: red;">No Hp wajib diisi.</strong>',
-                // 'email.required' => '<strong style="color: red;">Email wajib diisi.</strong>',
-                // 'sosial_media.required' => '<strong style="color: red;">Sosial Media wajib diisi.</strong>',
-                // 'jenis_kelamin.required' => '<strong style="color: red;">Jenis Kelamin wajib diisi.</strong>',
-                // 'agama.required' => '<strong style="color: red;">Agama wajib diisi.</strong>',
-                // 'kebangsaan.required' => '<strong style="color: red;">Kebangsaan wajib diisi.</strong>',
-                // 'status_menikah.required' => '<strong style="color: red;"Status wajib diisi.</strong>',
-                // 'tanggal_lahir.required' => '<strong style="color: red;">Tanggal Lahir wajib diisi.</strong>',
-                // 'tempat_lahir.required' => '<strong style="color: red;">Tempat Lahir wajib diisi.</strong>',
-                // 'domisili.required' => '<strong style="color: red;">Domisili wajib diisi.</strong>',
-                // 'pc.required' => '<strong style="color: red;">Pimpinan Cabang wajib diisi.</strong>',
-                // 'komisariat.required' => '<strong style="color: red;">Komisariat wajib diisi.</strong>',
-                // 'universitas.required' => '<strong style="color: red;">Universitas wajib diisi.</strong>',
-                // 'fakultas.required' => '<strong style="color: red;">Fakultas wajib diisi.</strong>',
-                // 'prodi.required' => '<strong style="color: red;">Program Studi wajib diisi.</strong>',
-                // 'foto.image' => '<strong style="color: red;">File yang diunggah harus berupa JPG/PNG.</strong>',
-                // 'foto.mimes' => '<strong style="color: red;">Format file harus JPG/PNG.</strong>',
-                // 'foto.max' => '<strong style="color: red;">Maksimal ukuran file JPG/PNG adalah 5 MB.</strong>',
-            ]);
-            $data = Kader::find($id);
-        } else {
-            $request->validate([
-                'nama_lengkap' => 'required',
-                'no_hp' => 'required',
-                'email' => 'required',
-                'sosial_media' => 'required',
-                'jenis_kelamin' => 'required',
-                'agama' => 'required',
-                'kebangsaan' => 'required',
-                'status_menikah' => 'required',
-                'tanggal_lahir' => 'required',
-                'tempat_lahir' => 'required',
-                'pc' => 'required',
-                'komisariat' => 'required',
-                'universitas' => 'required',
-                'fakultas' => 'required',
-                'prodi' => 'required',
-                'domisili' => 'required',
-                'foto' => 'image|mimes:jpeg,png,jpg|max:5240',
-            ], [
-                'nama_kader.required' => '<strong style="color: red;">Nama Lengkap wajib diisi.</strong>',
-                'no_hp.required' => '<strong style="color: red;">No Hp wajib diisi.</strong>',
-                'email.required' => '<strong style="color: red;">Email wajib diisi.</strong>',
-                'sosial_media.required' => '<strong style="color: red;">Sosial Media wajib diisi.</strong>',
-                'jenis_kelamin.required' => '<strong style="color: red;">Jenis Kelamin wajib diisi.</strong>',
-                'agama.required' => '<strong style="color: red;">Agama wajib diisi.</strong>',
-                'kebangsaan.required' => '<strong style="color: red;">Kebangsaan wajib diisi.</strong>',
-                'status_menikah.required' => '<strong style="color: red;"Status wajib diisi.</strong>',
-                'tanggal_lahir.required' => '<strong style="color: red;">Tanggal Lahir wajib diisi.</strong>',
-                'tempat_lahir.required' => '<strong style="color: red;">Tempat Lahir wajib diisi.</strong>',
-                'pc.required' => '<strong style="color: red;">Pimpinan Cabang wajib diisi.</strong>',
-                'komisariat.required' => '<strong style="color: red;">Komisariat wajib diisi.</strong>',
-                'universitas.required' => '<strong style="color: red;">Universitas wajib diisi.</strong>',
-                'fakultas.required' => '<strong style="color: red;">Fakultas wajib diisi.</strong>',
-                'prodi.required' => '<strong style="color: red;">Program Studi wajib diisi.</strong>',
-                'domisili.required' => '<strong style="color: red;">Domisili wajib diisi.</strong>',
-                'foto.image' => '<strong style="color: red;">File yang diunggah harus berupa JPG/PNG.</strong>',
-                'foto.mimes' => '<strong style="color: red;">Format file harus JPG/PNG.</strong>',
-                'foto.max' => '<strong style="color: red;">Maksimal ukuran file JPG/PNG adalah 5 MB.</strong>',
-            ]);
-        }
+
+        // if ($id) {
+        //     $request->validate([
+        //         // 'nama_lengkap' => 'required',
+        //         // 'no_hp' => 'required',
+        //         // 'email' => 'required',
+        //         // 'sosial_media' => 'required',
+        //         // 'jenis_kelamin' => 'required',
+        //         // 'agama' => 'required',
+        //         // 'kebangsaan' => 'required',
+        //         // 'tanggal_lahir' => 'required',
+        //         // 'tempat_lahir' => 'required',
+        //         // 'pc' => 'required',
+        //         // 'komisariat' => 'required',
+        //         // 'universitas' => 'required',
+        //         // 'fakultas' => 'required',
+        //         // 'prodi' => 'required',
+        //         // 'domisili' => 'required',
+        //         // 'foto' => 'image|mimes:jpeg,png,jpg|max:5240',
+        //     ], [
+        //         // 'nama_kader.required' => '<strong style="color: red;">Nama Lengkap wajib diisi.</strong>',
+        //         // 'no_hp.required' => '<strong style="color: red;">No Hp wajib diisi.</strong>',
+        //         // 'email.required' => '<strong style="color: red;">Email wajib diisi.</strong>',
+        //         // 'sosial_media.required' => '<strong style="color: red;">Sosial Media wajib diisi.</strong>',
+        //         // 'jenis_kelamin.required' => '<strong style="color: red;">Jenis Kelamin wajib diisi.</strong>',
+        //         // 'agama.required' => '<strong style="color: red;">Agama wajib diisi.</strong>',
+        //         // 'kebangsaan.required' => '<strong style="color: red;">Kebangsaan wajib diisi.</strong>',
+        //         // 'status_menikah.required' => '<strong style="color: red;"Status wajib diisi.</strong>',
+        //         // 'tanggal_lahir.required' => '<strong style="color: red;">Tanggal Lahir wajib diisi.</strong>',
+        //         // 'tempat_lahir.required' => '<strong style="color: red;">Tempat Lahir wajib diisi.</strong>',
+        //         // 'domisili.required' => '<strong style="color: red;">Domisili wajib diisi.</strong>',
+        //         // 'pc.required' => '<strong style="color: red;">Pimpinan Cabang wajib diisi.</strong>',
+        //         // 'komisariat.required' => '<strong style="color: red;">Komisariat wajib diisi.</strong>',
+        //         // 'universitas.required' => '<strong style="color: red;">Universitas wajib diisi.</strong>',
+        //         // 'fakultas.required' => '<strong style="color: red;">Fakultas wajib diisi.</strong>',
+        //         // 'prodi.required' => '<strong style="color: red;">Program Studi wajib diisi.</strong>',
+        //         // 'foto.image' => '<strong style="color: red;">File yang diunggah harus berupa JPG/PNG.</strong>',
+        //         // 'foto.mimes' => '<strong style="color: red;">Format file harus JPG/PNG.</strong>',
+        //         // 'foto.max' => '<strong style="color: red;">Maksimal ukuran file JPG/PNG adalah 5 MB.</strong>',
+        //     ]);
+        //     $data = Kader::find($id);
+        // } else {
+        //     $request->validate([
+        //         'nama_lengkap' => 'required',
+        //         'no_hp' => 'required',
+        //         'email' => 'required',
+        //         'sosial_media' => 'required',
+        //         'jenis_kelamin' => 'required',
+        //         'agama' => 'required',
+        //         'kebangsaan' => 'required',
+        //         'status_menikah' => 'required',
+        //         'tanggal_lahir' => 'required',
+        //         'tempat_lahir' => 'required',
+        //         'pc' => 'required',
+        //         'komisariat' => 'required',
+        //         'universitas' => 'required',
+        //         'fakultas' => 'required',
+        //         'prodi' => 'required',
+        //         'domisili' => 'required',
+        //         'foto' => 'image|mimes:jpeg,png,jpg|max:5240',
+        //     ], [
+        //         'nama_kader.required' => '<strong style="color: red;">Nama Lengkap wajib diisi.</strong>',
+        //         'no_hp.required' => '<strong style="color: red;">No Hp wajib diisi.</strong>',
+        //         'email.required' => '<strong style="color: red;">Email wajib diisi.</strong>',
+        //         'sosial_media.required' => '<strong style="color: red;">Sosial Media wajib diisi.</strong>',
+        //         'jenis_kelamin.required' => '<strong style="color: red;">Jenis Kelamin wajib diisi.</strong>',
+        //         'agama.required' => '<strong style="color: red;">Agama wajib diisi.</strong>',
+        //         'kebangsaan.required' => '<strong style="color: red;">Kebangsaan wajib diisi.</strong>',
+        //         'status_menikah.required' => '<strong style="color: red;"Status wajib diisi.</strong>',
+        //         'tanggal_lahir.required' => '<strong style="color: red;">Tanggal Lahir wajib diisi.</strong>',
+        //         'tempat_lahir.required' => '<strong style="color: red;">Tempat Lahir wajib diisi.</strong>',
+        //         'pc.required' => '<strong style="color: red;">Pimpinan Cabang wajib diisi.</strong>',
+        //         'komisariat.required' => '<strong style="color: red;">Komisariat wajib diisi.</strong>',
+        //         'universitas.required' => '<strong style="color: red;">Universitas wajib diisi.</strong>',
+        //         'fakultas.required' => '<strong style="color: red;">Fakultas wajib diisi.</strong>',
+        //         'prodi.required' => '<strong style="color: red;">Program Studi wajib diisi.</strong>',
+        //         'domisili.required' => '<strong style="color: red;">Domisili wajib diisi.</strong>',
+        //         'foto.image' => '<strong style="color: red;">File yang diunggah harus berupa JPG/PNG.</strong>',
+        //         'foto.mimes' => '<strong style="color: red;">Format file harus JPG/PNG.</strong>',
+        //         'foto.max' => '<strong style="color: red;">Maksimal ukuran file JPG/PNG adalah 5 MB.</strong>',
+        //     ]);
+        // }
+
 
         try {
+
             if ($request->hasFile('foto')) {
                 $file = $request->file('foto');
                 $name = time() . '_' . $file->getClientOriginalName();
@@ -203,17 +282,30 @@ class KaderController extends Controller
                 'user_id' => Auth::user()->id,
             ];
 
+
             if (!empty($fotoName)) {
                 $data['foto'] = $fotoName;
             }
+
+            // if ($id) {
+            //     Kader::where('id', $id)->update($data);
+            //     $newId = $id;
+            // } else {
+            //     $data['created_at'] = now();
+            //     Kader::insert($data);
+            //     $newId = Kader::latest()->first()->id;
+            // }
+
 
             if ($id) {
                 Kader::where('id', $id)->update($data);
                 $newId = $id;
             } else {
                 $data['created_at'] = now();
-                Kader::insert($data);
-                $newId = Kader::latest()->first()->id;
+                $data['updated_at'] = now();
+
+                $kader = Kader::create($data); // ← ini penting
+                $newId = $kader->id;           // ← langsung dapat ID
             }
 
             $dataToInsert = [];
@@ -421,11 +513,158 @@ class KaderController extends Controller
                 }
             }
 
-            return response()->json(['status' => true], 200);
+
+            return redirect()->route('kader')->with('success', 'Data berhasil disimpan');
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'msg' => $e->getMessage()], 400);
         }
     }
+
+//     public function store(Request $request)
+// {
+//     $id = $request->id;
+
+//     /* ================= VALIDATION ================= */
+
+//     $rules = [
+//         'nama_lengkap' => 'required',
+//         'no_hp' => 'required',
+//         'email' => 'required',
+//         'sosial_media' => 'required',
+//         'jenis_kelamin' => 'required',
+//         'agama' => 'required',
+//         'kebangsaan' => 'required',
+//         'status_menikah' => 'required',
+//         'tanggal_lahir' => 'required',
+//         'tempat_lahir' => 'required',
+//         'pc' => 'required',
+//         'komisariat' => 'required',
+//         'universitas' => 'required',
+//         'fakultas' => 'required',
+//         'prodi' => 'required',
+//         'domisili' => 'required',
+//     ];
+
+//     if (!$id) {
+//         $rules['foto'] = 'required|image|mimes:jpeg,png,jpg|max:5240';
+//     }
+
+//     $request->validate($rules);
+
+//     \DB::beginTransaction();
+
+//     try {
+
+//         /* ================= UPLOAD FOTO ================= */
+
+//         $fotoName = null;
+
+//         if ($request->hasFile('foto')) {
+//             $file = $request->file('foto');
+//             $fotoName = '/foto/' . time() . '_' . $file->getClientOriginalName();
+//             $file->storeAs('public', $fotoName);
+//         }
+
+//         /* ================= DATA KADER ================= */
+
+//         $kaderData = [
+//             'nama_lengkap' => $request->nama_lengkap,
+//             'no_hp' => $request->no_hp,
+//             'email' => $request->email,
+//             'sosial_media' => $request->sosial_media,
+//             'jenis_kelamin' => $request->jenis_kelamin,
+//             'agama' => $request->agama,
+//             'kebangsaan' => $request->kebangsaan,
+//             'status_menikah' => $request->status_menikah,
+//             'tanggal_lahir' => $request->tanggal_lahir,
+//             'tempat_lahir' => $request->tempat_lahir,
+//             'pc' => $request->pc,
+//             'komisariat' => $request->komisariat,
+//             'universitas' => $request->universitas,
+//             'fakultas' => $request->fakultas,
+//             'prodi' => $request->prodi,
+//             'domisili' => $request->domisili,
+//             'user_id' => auth()->id(),
+//         ];
+
+//         if ($fotoName) {
+//             $kaderData['foto'] = $fotoName;
+//         }
+
+//         /* ================= INSERT / UPDATE ================= */
+
+//         if ($id) {
+//             Kader::where('id', $id)->update($kaderData);
+//             $kaderId = $id;
+//         } else {
+//             $kader = Kader::create($kaderData);
+//             $kaderId = $kader->id;
+//         }
+
+//         /* ================= HELPER FUNCTION ================= */
+
+//         $insertRepeater = function ($model, $fields) use ($request, $kaderId) {
+//             $inputs = [];
+//             foreach ($fields as $field) {
+//                 $inputs[$field] = $request->input($field);
+//             }
+
+//             if (!$inputs[array_key_first($inputs)]) return;
+
+//             $count = count($inputs[array_key_first($inputs)]);
+//             for ($i = 0; $i < $count; $i++) {
+//                 $data = ['kader_id' => $kaderId];
+//                 foreach ($fields as $field) {
+//                     $data[$field] = $inputs[$field][$i] ?? null;
+//                 }
+//                 $model::create($data);
+//             }
+//         };
+
+//         /* ================= REPEATER ================= */
+
+//         // Riwayat Sekolah
+//         $insertRepeater(Ref_Riwayat_Sekolah::class, [
+//             'jenjang_sekolah','nama_sekolah','tahun_lulus'
+//         ]);
+
+//         // Pendidikan Terakhir
+//         $insertRepeater(Ref_Pendidikan_Terakhir::class, [
+//             'pendidikan_terakhir','status_pendidikan_terakhir'
+//         ]);
+
+//         // Pengalaman IMM
+//         $insertRepeater(Ref_Pengalaman_Organisasi_IMM::class, [
+//             'posisi_jabatan','mulai_organisasi','selesai_organisasi'
+//         ]);
+
+//         // Pengalaman Lainnya
+//         $insertRepeater(Ref_Pengalaman_Organisasi_Lainnya::class, [
+//             'tempat','posisi_jabatan_lainnya','mulai_organisasi','selesai_organisasi'
+//         ]);
+
+//         // Perkaderan
+//         $insertRepeater(Ref_Perkaderan::class, [
+//             'kegiatan_perkaderan','tahun_perkaderan'
+//         ]);
+
+//         // Pimpinan
+//         $insertRepeater(Ref_Pimpinan::class, [
+//             'kegiatan_pimpinan','tahun_pimpinan'
+//         ]);
+
+//         \DB::commit();
+
+//         return response()->json(['status' => true], 200);
+
+//     } catch (\Exception $e) {
+//         \DB::rollBack();
+//         return response()->json([
+//             'status' => false,
+//             'msg' => $e->getMessage()
+//         ], 400);
+//     }
+// }
 
     public function show_edit_form(Request $request)
     {
@@ -549,10 +788,9 @@ class KaderController extends Controller
     public function get_fakultas(Request $request)
     {
         $fakultas = Fakultas::where('kampus_id', $request->id)->get();
-        // return $fakultas;
         $option = '<option value="">-- Pilih Fakultas --</option>';
         foreach ($fakultas as $value) {
-            $option .= '<option data-kampus="' . $value->kampus_id . '" value="' . $value->kampus_id . '">' . $value->fakultas . '</option>';
+            $option .= '<option data-kampus="' . $value->kampus_id . '" data-fakultas="' . $value->id . '" value="' . $value->id . '">' . $value->fakultas . '</option>';
         }
 
         echo json_encode($option);
@@ -561,15 +799,96 @@ class KaderController extends Controller
     public function get_prodi(Request $request)
     {
         $fakultas = $request->input('fakultas');
-
         $prodi = Prodi::where('fakultas_id', $fakultas)->get();
         $option = '<option value="">-- Pilih Program Studi --</option>';
         foreach ($prodi as $value) {
-            $option .= '<option data-fakultas="' . $value->fakultas_id . '" data-kampus="' . $value->kampus_id . '"value="' . $value->id . '">' . $value->prodi . '</option>';
+            $option .= '<option data-fakultas="' . $value->fakultas_id . '" data-kampus="' . $value->kampus_id . '" value="' . $value->id . '">' . $value->prodi . '</option>';
         }
 
         echo json_encode($option);
     }
 
+    public function filter(Request $request){
+        // return $request;
+
+        if (
+            empty($request->fakultas) &&
+            empty($request->prodi) &&
+            empty($request->kampus) &&
+            empty($request->perkaderan) &&
+            empty($request->perkaderanKhusus)
+        ) {
+            return DataTables::of(collect())->make(true);
+        }
+
+        $kader = Kader::query()
+            ->when($request->fakultas, fn($q) =>
+                $q->whereHas('ref_fakultas', fn($x) =>
+                    $x->where('fakultas', $request->fakultas)
+                )
+            )
+
+            ->when($request->prodi, fn($q) =>
+                $q->whereHas('ref_prodi', fn($x) =>
+                    $x->where('prodi', $request->prodi)
+                )
+            )
+
+            ->when($request->kampus, fn($q) =>
+                $q->whereHas('ref_universitas', fn($x) =>
+                    $x->where('kampus', $request->kampus)
+                )
+            )
+
+            ->when($request->perkaderan, fn($q) =>
+                $q->whereHas('ref_perkaderan', fn($x) =>
+                    $x->where('kegiatan_perkaderan', $request->perkaderan)
+                )
+            )
+
+            ->when($request->perkaderanKhusus, fn($q) =>
+                $q->whereHas('ref_pimpinan', fn($x) =>
+                    $x->where('kegiatan_pimpinan', $request->perkaderanKhusus)
+                )
+            )
+
+            ->with([
+                'ref_fakultas:id,fakultas',
+                'ref_prodi:id,prodi',
+                'ref_universitas:id,kampus',
+                'ref_perkaderan:id,kader_id,kegiatan_perkaderan,tahun_perkaderan',
+                'ref_pimpinan:id,kader_id,kegiatan_pimpinan,tahun_pimpinan'
+            ])
+
+            ->select('kader.*')
+            ->get();
+
+            // $filters = array_filter([
+            //     $request->fakultas,
+            //     $request->prodi,
+            //     $request->kampus,
+            //     $request->perkaderan,
+            //     $request->perkaderanKhusus
+            // ]);
+
+            // $title = 'Kader';
+
+            // if (!empty($filters)) {
+            //     $title .= ' - ' . implode(' | ', $filters);
+            // }
+
+            // return view('contents.kader.filter', [
+            //     'title' => $title,
+            //     'kader' => $kader,
+            //     'FilterKampus' => $FilterKampus,
+            //     'FilterFakultas' => $FilterFakultas,
+            //     'Filterprodi' => $Filterprodi,
+            //     'FilterPerkaderan' => $FilterPerkaderan,
+            //     'FilterPerkaderanPimpinan' => $FilterPerkaderanPimpinan,
+            // ]);
+        return DataTables::of($kader)
+            ->addIndexColumn()
+            ->make(true);
+    }
 
 }

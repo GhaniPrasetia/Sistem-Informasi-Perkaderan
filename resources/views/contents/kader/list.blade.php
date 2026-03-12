@@ -12,17 +12,82 @@ $plugins = ['datatable', 'swal', 'select2'];
 <div class="row">
     <div class="col-12">
         <div class="card">
+            @if (rbacCheck('kader', 2))
+            <form action="{{ route('kader.filter') }}" method="post" id="form-kader" autocomplete="off">
+            @csrf
             <div class="card-body">
-                @if (rbacCheck('kader', 2))
-                <div class="row mb-2">
-                    <div class="col-sm-12">
-                        <div class="text-sm-right">
-                            <button type="button"
-                                class="btn btn-success btn-rounded waves-effect waves-light btn-tambah"><i
-                                    class="bx bx-plus-circle mr-1"></i> Tambah</button>
+                <div class="row mb-2 ">
+                    @method('POST')
+                    <div class="col-2 mt-2">
+                        <div class="form-group">
+                            <select class="form-control" name="fakultas" id="fakultas">
+                                <option value="">--Fakultas-- </option>
+                                @foreach ($FilterFakultas as $FilterFakultas => $dt )
+                                    <option value="{{$dt}}">{{$dt}}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
+                    <div class="col-2 mt-2">
+                        <div class="form-group">
+                            <select class="form-control" name="prodi" id="prodi">
+                                <option value="">--Program Studi--</option>
+                                @foreach ($Filterprodi as $Filterprodi => $dt )
+                                    <option value="{{$dt}}">{{$dt}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-2 mt-2">
+                        <div class="form-group">
+                            <select class="form-control" name="kampus" id="kampus">
+                                <option value="">--Universitas--</option>
+                                @foreach ($FilterKampus as $FilterKampus => $dt )
+                                    <option value="{{$dt}}">{{$dt}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-2 mt-2">
+                        <div class="form-group">
+                            <select class="form-control" name="perkaderan" id="perkaderan">
+                                <option value="">--Perkaderan Utama--</option>
+                                @foreach ($FilterPerkaderan as $FilterPerkaderan => $dt )
+                                    <option value="{{$dt}}">{{$dt}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-2 mt-2">
+                        <div class="form-group">
+                            <select class="form-control" name="perkaderanKhusus" id="perkaderanKhusus">
+                                <option value="">--Perkaderan Pimpinan--</option>
+                                @foreach ($FilterPerkaderanPimpinan as $FilterPerkaderan => $dt )
+                                    <option value="{{$dt}}">{{$dt}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-1 mt-1 text-sm-left">
+                        <button type="submit" class="btn btn-primary btn-block btn-rounded waves-effect waves-light btn-filter">
+                            <i class="bx bx-plus-circle mr-1"></i>
+                            Cari
+                        </button>
+                    </div>
+                    <div class="col-1 mt-1 text-sm-left">
+                        <button type="submit" class="btn btn-danger btn-block btn-rounded waves-effect waves-light btn-reset">
+                            <i class="bx bx-plus-circle mr-1"></i>
+                            reset
+                        </button>
+                    </div>
+                    <div class="col-12 text-sm-right">
+                        <button type="button"  class="btn btn-success btn-block btn-rounded waves-effect waves-light btn-tambah">
+                            <i class="bx bx-plus-circle mr-1"></i>
+                            Tambah
+                        </button>
+                    </div>
                 </div>
+            </form>
                 @endif
                 <div class="table-responsive" data-pattern="priority-columns">
                     <table class="table table-striped" id="table-data" style="width: 100%;">
@@ -49,6 +114,8 @@ $plugins = ['datatable', 'swal', 'select2'];
 <div id="modal-kader" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-kaderLabel"  aria-hidden="true" data-backdrop="static" data-keyboard="false"
     aria-hidden="true">
     <form action="{{ route('kader.store') }}" method="post" id="form-kader" autocomplete="off">
+        @csrf
+        @method('POST')
         <div class="modal-dialog modal-dialog-popup modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -107,7 +174,7 @@ $plugins = ['datatable', 'swal', 'select2'];
                             <div class="form-group">
                                 <label>Jenis Kelamin</label>
                                 <select class="form-control" name="jenis_kelamin" id="jenis_kelamin">
-                                    <option value="" selected>--- Pilih Jenis Kelamin ---</option>
+                                    <option value="" selected> Jenis Kelamin </option>
                                     <option value="Pria">Pria</option>
                                     <option value="Wanita">Wanita</option>
                                 </select>
@@ -117,7 +184,7 @@ $plugins = ['datatable', 'swal', 'select2'];
                             <div class="form-group">
                                 <label>Agama</label>
                                 <select class="form-control" name="agama" id="agama">
-                                    <option value="" selected>--- Pilih Agama ---</option>
+                                    <option value="" selected> Agama </option>
                                     <option value="Islam">Islam</option>
                                     <option value="Kristen Protestan">Kristen Protestan</option>
                                     <option value="Katolik">Katolik</option>
@@ -131,7 +198,7 @@ $plugins = ['datatable', 'swal', 'select2'];
                             <div class="form-group">
                                 <label>Kebangsaan</label>
                                 <select class="form-control" name="kebangsaan" id="kebangsaan">
-                                    <option value="" selected>--- Pilih Kebangsaan ---</option>
+                                    <option value="" selected> Kebangsaan </option>
                                     <option value="WNI">WNI</option>
                                     <option value="WNA">WNA</option>
                                 </select>
@@ -141,7 +208,7 @@ $plugins = ['datatable', 'swal', 'select2'];
                             <div class="form-group">
                                 <label>Status</label>
                                 <select class="form-control" name="status_menikah" id="status_menikah">
-                                    <option value="" selected>--- Pilih Status ---</option>
+                                    <option value="" selected> Status </option>
                                     <option value="Menikah">Menikah</option>
                                     <option value="Belum Menikah">Belum Menikah</option>
                                 </select>
@@ -182,7 +249,7 @@ $plugins = ['datatable', 'swal', 'select2'];
                             <div class="form-group">
                                 <label for="pc">Pimpimnan Cabang</label>
                                 <select class="form-control" name="pc" id="pc">
-                                    <option value="" selected>--- Pilih Pimpimnan Cabang ---</option>
+                                    <option value="" selected> Pimpimnan Cabang </option>
                                     @foreach ($cabang as $dt )
                                         <option value="{{$dt->cabang}}">{{$dt->cabang}}</option>
                                     @endforeach
@@ -194,7 +261,7 @@ $plugins = ['datatable', 'swal', 'select2'];
                             <div class="form-group">
                                 <label for="komisariat">Pimpinan Komisariat</label>
                                 <select class="form-control" name="komisariat" id="komisariat">
-                                    <option value="" selected>--- Pilih Pimpinan Komisariat ---</option>
+                                    <option value="" selected> Pimpinan Komisariat </option>
                                     @foreach ($komisariat as $dt )
                                         <option value="{{$dt->komisariat}}">{{$dt->komisariat}}</option>
                                     @endforeach
@@ -207,9 +274,9 @@ $plugins = ['datatable', 'swal', 'select2'];
                             <div class="form-group">
                                 <label for="universitas">Perguruan Tinggi</label>
                                 <select class="form-control" name="universitas" id="universitas" onchange="get_fakultas(this)">
-                                    <option value="" selected>--- Pilih Perguruan Tinggi ---</option>
+                                    <option value="" selected> Perguruan Tinggi </option>
                                     @foreach ($kampus as $dt )
-                                        <option value="{{$dt->id}}">{{$dt->kampus}}</option>
+                                        <option data-kampus="{{$dt->id}}" value="{{$dt->id}}">{{$dt->kampus}}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -219,7 +286,7 @@ $plugins = ['datatable', 'swal', 'select2'];
                             <div class="form-group">
                                 <label for="fakultas">Fakultas</label>
                                 <select class="form-control select2" name="fakultas" id="fakultas" onchange="get_prodi(this)">
-                                    <option value="" selected>--- Pilih Fakultas ---</option>
+                                    <option value="" selected> Fakultas </option>
                                     @foreach ($fakultas as $dt )
                                         <option value="{{$dt->fakultas}}">{{$dt->fakultas}}</option>
                                     @endforeach
@@ -231,7 +298,7 @@ $plugins = ['datatable', 'swal', 'select2'];
                             <div class="form-group">
                                 <label for="prodi">Program Studi</label>
                                 <select class="form-control select2" name="prodi" id="prodi">
-                                    <option value="" selected>--- Pilih Program Studi ---</option>
+                                    <option value="" selected> Program Studi </option>
                                     @foreach ($prodi as $dt )
                                         <option value="{{$dt->prodi}}">{{$dt->prodi}}</option>
                                     @endforeach
@@ -254,7 +321,7 @@ $plugins = ['datatable', 'swal', 'select2'];
                                                 <div class="form-group">
                                                     <label for="jenjang_sekolah">Jenjang Sekolah</label>
                                                     <select class="form-control" name="jenjang_sekolah[]" id="jenjang_sekolah">
-                                                        <option value="" selected>--- Pilih Jenjang Sekolah ---</option>
+                                                        <option value="" selected> Jenjang Sekolah </option>
                                                         <option value="SD">Sekolah Dasar</option>
                                                         <option value="SMP">Sekolah Menengah Pertama</option>
                                                         <option value="SMA">Sekolah Menengah Atas</option>
@@ -294,7 +361,7 @@ $plugins = ['datatable', 'swal', 'select2'];
                                                 <div class="form-group">
                                                     <label for="pendidikan_terakhir">Pendidikan Terakhir</label>
                                                     <select class="form-control" name="pendidikan_terakhir[]" id="pendidikan_terakhir">
-                                                        <option value="" selected>--- Pilih Pendidikan Terakhir ---</option>
+                                                        <option value="" selected> Pendidikan Terakhir </option>
                                                         <option value="Diploma">Diploma</option>
                                                         <option value="Sarjana">Sarjana</option>
                                                         <option value="Megister">Megister</option>
@@ -306,7 +373,7 @@ $plugins = ['datatable', 'swal', 'select2'];
                                                 <div class="form-group">
                                                     <label for="status_pendidikan_terakhir">Status</label>
                                                     <select class="form-control" name="status_pendidikan_terakhir[]" id="status_pendidikan_terakhir">
-                                                        <option value="" selected>--- Pilih Status ---</option>
+                                                        <option value="" selected> Status </option>
                                                         <option value="Aktif">Aktif</option>
                                                         <option value="Tidak Aktif">Tidak Aktif</option>
                                                         <option value="Cuti">Cuti</option>
@@ -419,7 +486,7 @@ $plugins = ['datatable', 'swal', 'select2'];
                                                 <div class="form-group">
                                                     <label for="kegiatan_perkaderan">Kegiatan</label>
                                                     <select class="form-control" name="kegiatan_perkaderan[]" id="kegiatan_perkaderan">
-                                                        <option value="" selected>--- Pilih Perkaderan Utama ---</option>
+                                                        <option value="" selected> Perkaderan Utama </option>
                                                         <option value="DAD">DAD</option>
                                                         <option value="DAM">DAM</option>
                                                         <option value="DAP">DAP</option>
@@ -455,7 +522,7 @@ $plugins = ['datatable', 'swal', 'select2'];
                                                 <div class="form-group">
                                                     <label for="kegiatan_pimpinan">Kegiatan</label>
                                                     <select class="form-control" name="kegiatan_pimpinan[]" id="kegiatan_pimpinan">
-                                                        <option value="" selected>--- Pilih Perkaderan Khusus ---</option>
+                                                        <option value="" selected> Perkaderan Khusus </option>
                                                         <option value="PID">PID</option>
                                                         <option value="PIM">PIM</option>
                                                         <option value="PIP">PIP</option>

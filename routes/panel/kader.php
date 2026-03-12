@@ -2,6 +2,7 @@
 Route::get('/', 'KaderController@index')->name('kader')->middleware('rbac:kader');
 Route::get('/data', 'KaderController@data')->name('kader.data')->middleware('rbac:kader');
 Route::post('/store', 'KaderController@store')->name('kader.store')->middleware('rbac:kader,2');
+
 Route::delete('/delete', 'KaderController@delete')->name('kader.delete')->middleware('rbac:kader,4');
 
 Route::get('/show_edit_form', 'KaderController@show_edit_form')->name('kader.show_edit_form')->middleware('rbac:kader,3');
@@ -9,3 +10,7 @@ Route::delete('/delete-repeater', 'KaderController@delete_repeater')->name('kade
 
 Route::get('/get-fakultas', 'KaderController@get_fakultas')->name('kader.fakultas')->middleware('rbac:kader');
 Route::get('/get-prodi', 'KaderController@get_prodi')->name('kader.prodi')->middleware('rbac:kader');
+// Route::post('/filter', 'KaderController@filter')->name('kader.filter')->middleware('rbac:kader,2');
+
+Route::match(['post','get'], '/filter', 'KaderController@filter')->name('kader.filter')->middleware('rbac:kader');
+

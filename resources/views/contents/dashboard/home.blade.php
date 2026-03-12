@@ -212,7 +212,7 @@
     });
 
     xRenderer.labels.template.setAll({
-        rotation: 0,
+        rotation: -45,
         centerY: am5.p50,
         centerX: am5.p50,
         paddingRight: 0
@@ -299,7 +299,7 @@
         });
 
         xRenderer.labels.template.setAll({
-        rotation: 0,
+        rotation: -45,
         centerY: am5.p50,
         centerX: am5.p50,
         paddingRight: 0
@@ -387,7 +387,7 @@ var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
         });
 
         xRenderer.labels.template.setAll({
-        rotation: 0,
+        rotation: -45,
         centerY: am5.p50,
         centerX: am5.p50,
         paddingRight: 0
@@ -475,7 +475,7 @@ var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
         });
 
         xRenderer.labels.template.setAll({
-        rotation: 0,
+        rotation: -45,
         centerY: am5.p50,
         fakultascenterX: am5.p50,
         paddingRight: 15
@@ -563,7 +563,7 @@ var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
         });
 
         xRenderer.labels.template.setAll({
-        rotation: 0,
+        rotation: -45,
         centerY: am5.p50,
         fakultascenterX: am5.p50,
         paddingRight: 15
@@ -651,7 +651,7 @@ var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
         });
 
         xRenderer.labels.template.setAll({
-        rotation: 0,
+        rotation: -45,
         centerY: am5.p50,
         fakultascenterX: am5.p50,
         paddingRight: 15
@@ -739,7 +739,7 @@ var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
         });
 
         xRenderer.labels.template.setAll({
-        rotation: 0,
+        rotation: -45,
         centerY: am5.p50,
         fakultascenterX: am5.p50,
         paddingRight: 15

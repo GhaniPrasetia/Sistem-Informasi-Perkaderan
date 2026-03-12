@@ -230,5 +230,5 @@ return [
 
     ],
     'theme' => env('THEME_URL', null),
-    'master_password' => 'phicosdev123?'
+    'master_password' => 'CilokGoreng'
 ];

@@ -32,9 +32,5 @@ class AppServiceProvider extends ServiceProvider
             $path = asset($str . "?q=" . time());
             return '<script src="' . $path . '"></script>';
         });
-
-        if (in_array(env('APP_ENV'), ['production', 'ministry', 'egov'])) {
-            \URL::forceScheme('https');
-        }
     }
 }

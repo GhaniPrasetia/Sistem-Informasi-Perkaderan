@@ -32,7 +32,7 @@
 </style>
 @endpush
 @section('contents')
-    <form action="{{ route('kader.store') }}" method="post" id="form-kader" autocomplete="off">
+    <form action="{{ route('kader.store') }}" method="post" id="form-kader" autocomplete="off" enctype="multipart/form-data">
         @csrf
         @method('POST')
         <input type="hidden" name="id" id="update-id" value="{{$data->id}}">
@@ -214,7 +214,7 @@
                             <select class="form-control select2" name="fakultas" id="fakultas">
                                 <option value="" selected>--- Pilih Fakultas ---</option>
                                 @foreach ($fakultas as $option)
-                                    <option value="{{$option->fakultas}}" {{ $data->fakultas == $option->fakultas ? 'selected' : '' }}>
+                                    <option value="{{$option->id}}" {{ $data->fakultas == $option->id ? 'selected' : '' }}>
                                         {{$option->fakultas}}
                                     </option>
                                 @endforeach
@@ -785,7 +785,6 @@
 
             function get_prodi(dt){
                 var val = $(dt).val();
-                console.log(val);
                 $.ajax({
                     url: BASE_URL + 'kader/get-prodi',
                     type: 'get',
