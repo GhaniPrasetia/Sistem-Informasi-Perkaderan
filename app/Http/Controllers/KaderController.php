@@ -67,8 +67,8 @@ class KaderController extends Controller
                             ->values();
 
         $FilterKomisariat = Komisariat::
-            where('deleted_at', null)
-            ->get();
+                            where('deleted_at', null)
+                            ->get();
 
         $FilterFakultas = Kader::with('ref_fakultas')
                             ->get()
@@ -102,8 +102,24 @@ class KaderController extends Controller
                             ->unique()
                             ->values();
 
+
+        $user = Auth::user();
+        $roleId = session('role_id');
+            switch ($roleId) {
+                case 2:
+                    $title = 'Kader - PC IMM Kota Surakarta';
+                    break;
+
+                case 3:
+                    $title = 'Kader - ' . optional($user->ref_komisariat)->komisariat;
+                    break;
+
+                default:
+                    $title = 'Kader';
+            }
+
         return view('contents.kader.list', [
-            'title' => 'Kader',
+            'title' => $title,
             'cabang' => $cabang,
             'kampus' => $kampus,
             'fakultas' => $fakultas,
@@ -141,9 +157,9 @@ class KaderController extends Controller
         $role_id = session('role_id');
 
         if ($role_id === 2) {
-            $list = Kader::with('ref_pimpinan', 'ref_perkaderan','ref_universitas','ref_fakultas','ref_prodi')->get();
+            $list = Kader::with('ref_pimpinan', 'ref_perkaderan','ref_komisariat','ref_universitas','ref_fakultas','ref_prodi')->get();
         } else {
-            $list = Kader::where('user_id', Auth::user()->id)->with('ref_pimpinan', 'ref_perkaderan','ref_universitas','ref_fakultas','ref_prodi')->get();
+            $list = Kader::where('komisariat', Auth::user()->komisariat_id)->with('ref_pimpinan', 'ref_komisariat', 'ref_perkaderan','ref_universitas','ref_fakultas','ref_prodi')->get();
         }
 
         // return $list;
@@ -711,9 +727,12 @@ class KaderController extends Controller
             where('deleted_at', null)
             ->get();
 
-        $komisariat = Komisariat::
-            where('deleted_at', null)
+        $komisariat = Kader::with('ref_komisariat')
+            ->where('id', $id_ubah)
+            ->where('deleted_at', null)
             ->get();
+
+            // return $komisariat;
 
         $fakultas = Fakultas::
             where('deleted_at', null)
@@ -854,6 +873,7 @@ class KaderController extends Controller
 
             ->with([
                 'ref_fakultas:id,fakultas',
+                'ref_komisariat:id,komisariat',
                 'ref_prodi:id,prodi',
                 'ref_universitas:id,kampus',
                 'ref_perkaderan:id,kader_id,kegiatan_perkaderan,tahun_perkaderan',

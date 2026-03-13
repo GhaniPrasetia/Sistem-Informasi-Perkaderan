@@ -284,7 +284,7 @@ $(() => {
         }, {
             data: null,
             render: function(data, type, row) {
-                return "Pimpinan Cabang : " + (data.pc ?? '-') + "<br>" + "Pimpinan Komisariat : " + (data.komisariat ?? '-') + "<br>" + "Universitas : " + (data.ref_universitas?.[0]?.kampus ?? '-') + "<br>" + "Fakultas : " + (data.ref_fakultas?.[0]?.fakultas ?? '-') + "<br>" + "Program Studi : " + (data.ref_prodi?.[0]?.prodi ?? '-');
+                return "Pimpinan Cabang : " + (data.pc ?? '-') + "<br>" + "Pimpinan Komisariat : " + (data.ref_komisariat?.[0]?.komisariat ?? '-') + "<br>" + "Universitas : " + (data.ref_universitas?.[0]?.kampus ?? '-') + "<br>" + "Fakultas : " + (data.ref_fakultas?.[0]?.fakultas ?? '-') + "<br>" + "Program Studi : " + (data.ref_prodi?.[0]?.prodi ?? '-');
             }
         },{
             data: null,

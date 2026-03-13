@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+// Model
 use App\Model\Role;
 use App\User;
+use App\Model\Komisariat;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -11,20 +14,26 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 
+
 class UsersController extends Controller
 {
     public function index(Request $request)
     {
         $roles = Role::all();
+
+        $komisariat = Komisariat::where('deleted_at', null)
+            ->get();
+
         return view('contents.user.list', [
             'title' => 'Pengguna',
             'roles' => $roles,
+            'komisariat' => $komisariat,
         ]);
     }
 
     public function data(Request $request)
     {
-        $list = User::select(DB::raw('id, name, username, is_active, created_at'))->with('roles');
+        $list = User::with('roles','ref_komisariat');
 
         return DataTables::of($list)
             ->addIndexColumn()
@@ -35,6 +44,7 @@ class UsersController extends Controller
     {
         $request->validate([
             'name' => 'required',
+            'komisariat_id' => 'required',
             'username' => 'required|unique:users,username',
             'password' => 'required|min:5',
             'confirmation_password' => 'required|same:password'
@@ -43,6 +53,7 @@ class UsersController extends Controller
         try {
             $user = User::create([
                 'name' => $request->name,
+                'komisariat_id' => $request->komisariat,
                 'username' => $request->username,
                 'password' => Hash::make($request->password)
             ]);
@@ -55,6 +66,7 @@ class UsersController extends Controller
 
     public function update(Request $request)
     {
+        // return $request;
         $request->validate([
             'name' => 'required',
             'username' => ['required', Rule::unique('users', 'username')->ignore($request->id)]
@@ -64,6 +76,7 @@ class UsersController extends Controller
             $user = User::find($request->id);
 
             $user->name = $request->name;
+            $user->komisariat_id = $request->komisariat_id;
             $user->username = $request->username;
 
             if ($user->isDirty()) {

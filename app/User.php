@@ -3,6 +3,8 @@
 namespace App;
 
 use App\Model\Role;
+use App\Model\Komisariat;
+
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -48,5 +50,10 @@ class User extends Authenticatable
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'user_roles', 'user_id', 'role_id');
+    }
+
+    public function ref_komisariat()
+    {
+        return $this->belongsTo(Komisariat::class, 'komisariat_id', 'id');
     }
 }

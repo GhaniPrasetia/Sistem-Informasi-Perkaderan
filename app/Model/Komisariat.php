@@ -11,6 +11,7 @@ class Komisariat extends Model
     protected $table = 'komisariat';
 
     protected $fillable = [
+        'id',
         'komisariat',
     ];
 

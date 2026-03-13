@@ -15,6 +15,7 @@ use App\Model\Ref_Pimpinan;
 use App\Model\Kampus;
 use App\Model\Fakultas;
 use App\Model\Prodi;
+use App\Model\Komisariat;
 
 class Kader extends Model
 {
@@ -64,5 +65,10 @@ class Kader extends Model
     public function ref_pimpinan()
     {
         return $this->hasMany(Ref_Pimpinan::class, 'kader_id', 'id');
+    }
+
+    public function ref_komisariat()
+    {
+        return $this->hasMany(Komisariat::class, 'id', 'komisariat');
     }
 }

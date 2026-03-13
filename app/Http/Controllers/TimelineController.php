@@ -18,8 +18,22 @@ class TimelineController extends Controller
 {
     public function index(Request $request)
     {
+        $user = Auth::user();
+        $roleId = session('role_id');
+            switch ($roleId) {
+                case 2:
+                    $title = 'Timeline - PC IMM Kota Surakarta';
+                    break;
+
+                case 3:
+                    $title = 'Timeline - ' . optional($user->ref_komisariat)->komisariat;
+                    break;
+
+                default:
+                    $title = 'Timeline';
+            }
         return view('contents.timeline.list', [
-            'title' => 'Timeline',
+            'title' => $title,
         ]);
     }
 

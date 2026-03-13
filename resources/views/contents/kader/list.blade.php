@@ -263,7 +263,7 @@ $plugins = ['datatable', 'swal', 'select2'];
                                 <select class="form-control" name="komisariat" id="komisariat">
                                     <option value="" selected> Pimpinan Komisariat </option>
                                     @foreach ($komisariat as $dt )
-                                        <option value="{{$dt->komisariat}}">{{$dt->komisariat}}</option>
+                                        <option value="{{$dt->id}}">{{$dt->komisariat}}</option>
                                     @endforeach
                                 </select>
                             </div>

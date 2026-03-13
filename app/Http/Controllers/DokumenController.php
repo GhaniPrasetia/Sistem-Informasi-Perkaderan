@@ -19,8 +19,22 @@ class DokumenController extends Controller
     public function index(Request $request)
     {
         $roles = Role::all();
+        $user = Auth::user();
+        $roleId = session('role_id');
+            switch ($roleId) {
+                case 2:
+                    $title = 'Dokumen - PC IMM Kota Surakarta';
+                    break;
+
+                case 3:
+                    $title = 'Dokumen ' . optional($user->ref_komisariat)->komisariat;
+                    break;
+
+                default:
+                    $title = 'Dokumen';
+            }
         return view('contents.dokumen.list', [
-            'title' => 'Dokumen',
+            'title' => $title,
             'roles' => $roles,
         ]);
     }

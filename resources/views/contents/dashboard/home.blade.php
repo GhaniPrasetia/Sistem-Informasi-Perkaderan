@@ -50,15 +50,17 @@
                                         <div class="col-9">
                                             <div class="form-group">
                                                 <select class="form-control" name="tahun" id="tahun">
-                                                    <option value="">--- Pilih Tahun ---</option>
+                                                    <option value="">--- Pilih Tahun Perkaderan---</option>
                                                     @foreach ($tahunPerkaderan as $tahun => $dt )
                                                         <option value="{{$dt}}">{{$dt}}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-2">
-                                            <button type="submit" class="btn btn-primary waves-effect waves-light">Data</button>
+                                        <div class="col-3 btn-rounded">
+                                            <button type="submit" class="btn btn-primary waves-effect waves-light w-100">
+                                                Data
+                                            </button>
                                         </div>
                                     </div>
                                 </form>

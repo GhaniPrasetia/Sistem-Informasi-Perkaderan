@@ -1,5 +1,8 @@
 let table;
 $(() => {
+$('#komisariat').select2({
+    width: '100%'
+});
     $('#form-update-role').on('submit', function (e) {
         e.preventDefault();
 
@@ -166,7 +169,7 @@ $(() => {
 
         clearErrorMessage();
         $('#form-pengguna-update')[0].reset();
-
+        $('#update-komisariat').val(data.komisariat).trigger('change');
         $.each(data, (key, value) => {
             $('#update-' + key).val(value);
         })
@@ -245,9 +248,10 @@ $(() => {
             data: 'DT_RowIndex'
         }, {
             data: 'username',
-        }, {
-            data: 'name'
-        }, {
+        },{
+            data: 'ref_komisariat.komisariat',
+            defaultContent: '-'
+        },  {
             data: 'is_active',
             render: (data, type, row) => {
                 return `

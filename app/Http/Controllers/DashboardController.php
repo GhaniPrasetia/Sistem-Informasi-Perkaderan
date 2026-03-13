@@ -13,19 +13,6 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $tahunPerkaderan = Kader::select('id')
-                        ->with(['ref_perkaderan' => function ($query) {
-                            $query->select('kader_id', 'tahun_perkaderan');
-                        }])
-                        ->where('deleted_at', null)
-                        ->get()
-                        ->pluck('ref_perkaderan')
-                        ->flatten()
-                        ->groupBy('tahun_perkaderan')
-                        ->map(function ($items, $tahun_perkaderan) {
-                            return strtoupper($tahun_perkaderan);
-                        })
-                        ->values();
 
         $perguruanTinggi = Kader::select('universitas')->distinct()->get();
         $jumlahPerguruanTinggi = count($perguruanTinggi);
@@ -38,10 +25,24 @@ class DashboardController extends Controller
 
         $kader = Kader::count();
 
-        if(session('role_id')==3){
+        if(session('role_id')===3){
+            $tahunPerkaderan = Kader::with(['ref_perkaderan' => function ($query) {
+                            $query->select('kader_id', 'tahun_perkaderan');
+                        }])
+                        ->where('deleted_at', null)
+                        ->where('komisariat', Auth::user()->komisariat_id)
+                        ->get()
+                        ->pluck('ref_perkaderan')
+                        ->flatten()
+                        ->groupBy('tahun_perkaderan')
+                        ->map(function ($items, $tahun_perkaderan) {
+                            return strtoupper($tahun_perkaderan);
+                        })
+                        ->values();
+
             $chartKampus = Kader::with('ref_universitas')
                         ->select('universitas', DB::raw('count(*) as total'))
-                        ->where('user_id', Auth::user()->id)
+                        ->where('komisariat', Auth::user()->komisariat_id)
                         ->groupBy('universitas')
                         ->with('ref_universitas')
                         ->get()
@@ -52,7 +53,7 @@ class DashboardController extends Controller
                         });
 
             $chartFakultas = Kader::select('fakultas', DB::raw('count(*) as total'))
-            ->where('user_id', Auth::user()->id)
+                    ->where('komisariat', Auth::user()->komisariat_id)
                     ->groupBy('fakultas')
                     ->with('ref_fakultas')
                     ->get()
@@ -62,7 +63,7 @@ class DashboardController extends Controller
                     });
 
             $chartProdi = Kader::select('prodi', DB::raw('count(*) as total'))
-            ->where('user_id', Auth::user()->id)
+                    ->where('komisariat', Auth::user()->komisariat_id)
                     ->groupBy('prodi')
                     ->get()
                     ->each(function ($items) {
@@ -71,34 +72,26 @@ class DashboardController extends Controller
                     });
 
             $chartKomisariat = Kader::select('komisariat', DB::raw('count(*) as total'))
-            ->where('user_id', Auth::user()->id)
+                    ->where('komisariat', Auth::user()->komisariat_id)
                     ->groupBy('komisariat')
                     ->get()->each(function ($items) {
-                        $items->komisariat = strtoupper($items->komisariat);
+                        $items->komisariat = $items->ref_komisariat[0]->komisariat;
                         $items->total = (int) $items->total;
                     });
 
             $chartImmawan = Kader::select('jenis_kelamin', DB::raw('count(*) as total'))
-            ->where('user_id', Auth::user()->id)
+                    ->where('komisariat', Auth::user()->komisariat_id)
                     ->groupBy('jenis_kelamin')
                     ->get()
                     ->map(function ($item) {
-                        // Convert jenis_kelamin to uppercase
                         $item->jenis_kelamin = strtoupper($item->jenis_kelamin);
-
-                        // Determine the label based on jenis_kelamin
                         if ($item->jenis_kelamin === 'PRIA') {
                             $item->label = 'IMMAWAN';
                         } elseif ($item->jenis_kelamin === 'WANITA') {
                             $item->label = 'IMMAWATI';
                         }
-
-                        // Convert total to integer
                         $item->total = (int) $item->total;
-
-                        // Unset jenis_kelamin as it's not needed anymore
                         unset($item->jenis_kelamin);
-
                         return $item;
                     });
 
@@ -107,7 +100,7 @@ class DashboardController extends Controller
                     ->with(['ref_perkaderan' => function ($query) {
                         $query->select('kader_id', 'kegiatan_perkaderan');
                     }])
-                    ->where('user_id', Auth::user()->id)
+                    ->where('komisariat', Auth::user()->komisariat_id)
                     ->get()
                     ->pluck('ref_perkaderan')
                     ->flatten()
@@ -124,7 +117,7 @@ class DashboardController extends Controller
                     ->with(['ref_pimpinan' => function ($query) {
                         $query->select('kader_id', 'kegiatan_pimpinan');
                     }])
-                    ->where('user_id', Auth::user()->id)
+                    ->where('komisariat', Auth::user()->komisariat_id)
                     ->get()
                     ->pluck('ref_pimpinan')
                     ->flatten()
@@ -137,6 +130,20 @@ class DashboardController extends Controller
                     })
                     ->values();
         }else{
+
+            $tahunPerkaderan = Kader::with(['ref_perkaderan' => function ($query) {
+                            $query->select('kader_id', 'tahun_perkaderan');
+                        }])
+                        ->where('deleted_at', null)
+                        // ->where('komisariat', Auth::user()->komisariat_id)
+                        ->get()
+                        ->pluck('ref_perkaderan')
+                        ->flatten()
+                        ->groupBy('tahun_perkaderan')
+                        ->map(function ($items, $tahun_perkaderan) {
+                            return strtoupper($tahun_perkaderan);
+                        })
+                        ->values();
 
             $chartKampus = Kader::select('universitas', DB::raw('count(*) as total'))
                             ->groupBy('universitas')
@@ -178,22 +185,14 @@ class DashboardController extends Controller
                                 ->groupBy('jenis_kelamin')
                     ->get()
                     ->map(function ($item) {
-                        // Convert jenis_kelamin to uppercase
                         $item->jenis_kelamin = strtoupper($item->jenis_kelamin);
-
-                        // Determine the label based on jenis_kelamin
                         if ($item->jenis_kelamin === 'PRIA') {
                             $item->label = 'IMMAWAN';
                         } elseif ($item->jenis_kelamin === 'WANITA') {
                             $item->label = 'IMMAWATI';
                         }
-
-                        // Convert total to integer
                         $item->total = (int) $item->total;
-
-                        // Unset jenis_kelamin as it's not needed anymore
                         unset($item->jenis_kelamin);
-
                         return $item;
                     });
 
@@ -231,9 +230,23 @@ class DashboardController extends Controller
                     ->values();
         }
 
+        $user = Auth::user();
+        $roleId = session('role_id');
+            switch ($roleId) {
+                case 2:
+                    $title = 'Beranda - PC IMM Kota Surakarta';
+                    break;
+
+                case 3:
+                    $title = 'Beranda - ' . optional($user->ref_komisariat)->komisariat;
+                    break;
+
+                default:
+                    $title = 'Beranda';
+            }
 
         return view('contents.dashboard.home', [
-            'title' => 'Beranda',
+            'title' => $title,
             'perguruanTinggi' => $jumlahPerguruanTinggi,
             'fakultas' => $jumlahFakultas,
             'prodi' => $jumlahProdi,
@@ -248,20 +261,17 @@ class DashboardController extends Controller
             'tahunPerkaderan' => $tahunPerkaderan,
             'tahun' => "",
         ]);
-
-        // return $chartKampus;
     }
 
     public function filter_tahun(Request $request)
     {
-        // return $request->tahun;
-
         $perguruanTinggi = Kader::with('ref_perkaderan')
                         ->whereHas('ref_perkaderan', function($query) use ($request) {
                             $query->where('tahun_perkaderan', $request->tahun);
                         })
                         ->select('universitas')
                         ->count();
+
         $fakultas = Kader::with('ref_perkaderan')
                     ->whereHas('ref_perkaderan', function($query) use ($request) {
                         $query->where('tahun_perkaderan', $request->tahun);
@@ -275,28 +285,41 @@ class DashboardController extends Controller
                     $query->where('tahun_perkaderan', $request->tahun);
                 })->count();
 
-        if(session('role_id')==3){
+        if(session('role_id')===3){
 
-        $tahunPerkaderan = Kader::select('id')
-                ->with(['ref_perkaderan' => function ($query) {
-                    $query->select('kader_id', 'tahun_perkaderan');
-                }])
-                ->where('user_id', Auth::user()->id)
-                ->where('deleted_at', null)
-                ->get()
-                ->pluck('ref_perkaderan')
-                ->flatten()
-                ->groupBy('tahun_perkaderan')
-                ->map(function ($items, $tahun_perkaderan) {
-                    return strtoupper($tahun_perkaderan);
-                })
-                ->values();
+            $tahunPerkaderan = Kader::select('id')
+                    ->with(['ref_perkaderan' => function ($query) {
+                        $query->select('kader_id', 'tahun_perkaderan');
+                    }])
+                    ->where('deleted_at', null)
+                    ->get()
+                    ->pluck('ref_perkaderan')
+                    ->flatten()
+                    ->groupBy('tahun_perkaderan')
+                    ->map(function ($items, $tahun_perkaderan) {
+                        return strtoupper($tahun_perkaderan);
+                    })
+                    ->values();
+
+            $chartKampus = Kader::with('ref_perkaderan')
+                        ->whereHas('ref_perkaderan', function($query) use ($request) {
+                            $query->where('tahun_perkaderan', $request->tahun);
+                        })->select('universitas', DB::raw('count(*) as total'))
+                        // ->where('user_id', Auth::user()->id)
+                        ->groupBy('universitas')
+                        ->get()
+                        ->transform(function ($item) {
+                            $item->universitas = $item->ref_universitas[0]->kampus;
+                            // $item->universitas = strtoupper($item->universitas);
+                            $item->total = (int) $item->total;
+                            return $item;
+                        });
 
             $chartFakultas = Kader::with('ref_perkaderan')
             ->whereHas('ref_perkaderan', function($query) use ($request) {
                 $query->where('tahun_perkaderan', $request->tahun);
             })->select('fakultas', DB::raw('count(*) as total'))
-            ->where('user_id', Auth::user()->id)
+            // ->where('user_id', Auth::user()->id)
                     ->groupBy('fakultas')
                     ->get()->each(function ($items) {
                         $items->fakultas = $items->ref_fakultas[0]->fakultas;
@@ -308,7 +331,7 @@ class DashboardController extends Controller
             ->whereHas('ref_perkaderan', function($query) use ($request) {
                 $query->where('tahun_perkaderan', $request->tahun);
             })->select('prodi', DB::raw('count(*) as total'))
-            ->where('user_id', Auth::user()->id)
+            // ->where('user_id', Auth::user()->id)
                     ->groupBy('prodi')
                     ->get()->each(function ($items) {
                         $items->prodi =  $items->ref_prodi[0]->prodi;
@@ -320,10 +343,10 @@ class DashboardController extends Controller
             ->whereHas('ref_perkaderan', function($query) use ($request) {
                 $query->where('tahun_perkaderan', $request->tahun);
             })->select('komisariat', DB::raw('count(*) as total'))
-            ->where('user_id', Auth::user()->id)
+            // ->where('user_id', Auth::user()->id)
                     ->groupBy('komisariat')
                     ->get()->each(function ($items) {
-                        $items->komisariat = strtoupper($items->komisariat);
+                        $items->komisariat = strtoupper($items->ref_komisariat[0]->komisariat);
                         $items->total = (int) $items->total;
                     });
 
@@ -331,7 +354,7 @@ class DashboardController extends Controller
             ->whereHas('ref_perkaderan', function($query) use ($request) {
                 $query->where('tahun_perkaderan', $request->tahun);
             })->select('jenis_kelamin', DB::raw('count(*) as total'))
-            ->where('user_id', Auth::user()->id)
+            // ->where('user_id', Auth::user()->id)
                     ->groupBy('jenis_kelamin')
                     ->get()
                     ->map(function ($item) {
@@ -362,7 +385,7 @@ class DashboardController extends Controller
                     ->with(['ref_perkaderan' => function ($query) {
                         $query->select('kader_id', 'kegiatan_perkaderan');
                     }])
-                    ->where('user_id', Auth::user()->id)
+                    // ->where('user_id', Auth::user()->id)
                     ->get()
                     ->pluck('ref_perkaderan')
                     ->flatten()
@@ -382,7 +405,7 @@ class DashboardController extends Controller
                     ->with(['ref_pimpinan' => function ($query) {
                         $query->select('kader_id', 'kegiatan_pimpinan');
                     }])
-                    ->where('user_id', Auth::user()->id)
+                    // ->where('user_id', Auth::user()->id)
                     ->get()
                     ->pluck('ref_pimpinan')
                     ->flatten()
@@ -396,7 +419,7 @@ class DashboardController extends Controller
                     ->values();
         }else{
 
-        $tahunPerkaderan = Kader::select('id')
+            $tahunPerkaderan = Kader::select('id')
                     ->with(['ref_perkaderan' => function ($query) {
                         $query->select('kader_id', 'tahun_perkaderan');
                     }])
@@ -411,10 +434,10 @@ class DashboardController extends Controller
                     ->values();
 
             $chartKampus = Kader::with('ref_perkaderan')
-            ->whereHas('ref_perkaderan', function($query) use ($request) {
-                $query->where('tahun_perkaderan', $request->tahun);
-            })->select('universitas', DB::raw('count(*) as total'))
-                                                ->groupBy('universitas')
+                        ->whereHas('ref_perkaderan', function($query) use ($request) {
+                            $query->where('tahun_perkaderan', $request->tahun);
+                        })->select('universitas', DB::raw('count(*) as total'))
+                        ->groupBy('universitas')
                         ->get()
                         ->transform(function ($item) {
                             $item->universitas = $item->ref_universitas[0]->kampus;
@@ -454,7 +477,7 @@ class DashboardController extends Controller
             })->select('komisariat', DB::raw('count(*) as total'))
                                 ->groupBy('komisariat')
                     ->get()->each(function ($items) {
-                        $items->komisariat = strtoupper($items->komisariat);
+                        $items->komisariat = strtoupper($items->ref_komisariat[0]->komisariat);
                         $items->total = (int) $items->total;
                     });
 
@@ -524,6 +547,8 @@ class DashboardController extends Controller
                     ->values();
         }
 
+        // return $chartKomisariat;
+
         return
         view('contents.dashboard.home',[
             'title' => 'Beranda',
@@ -541,5 +566,6 @@ class DashboardController extends Controller
             'tahunPerkaderan' => $tahunPerkaderan,
             'tahun' => $request->tahun,
         ]);
+
     }
 }

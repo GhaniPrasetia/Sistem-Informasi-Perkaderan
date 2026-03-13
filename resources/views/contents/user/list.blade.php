@@ -66,6 +66,15 @@ $plugins = ['datatable', 'swal', 'select2'];
                         <div id="error-name"></div>
                     </div>
                     <div class="form-group">
+                        <label for="komisariat">Pimpinan Komisariat</label>
+                        <select class="form-control select2" name="komisariat_id" id="komisariat_id">
+                            <option value="" selected> Pimpinan Komisariat </option>
+                            @foreach ($komisariat as $dt )
+                                <option value="{{$dt->id}}">{{$dt->komisariat}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="password">Kata Sandi</label>
                         <input type="password" name="password" id="password" class="form-control"
                             placeholder="Masukkan Kata Sandi" required>
@@ -113,6 +122,17 @@ $plugins = ['datatable', 'swal', 'select2'];
                         <input type="text" name="name" id="update-name" class="form-control"
                             placeholder="Masukkan Nama Lengkap" required>
                         <div id="error-update-name"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="komisariat">Pimpinan Komisariat</label>
+                        <select class="form-control select2" name="komisariat_id" id="update-komisariat">
+                            <option value="">Pimpinan Komisariat</option>
+                            @foreach ($komisariat as $dt)
+                                <option value="{{ $dt->id }}">
+                                    {{ $dt->komisariat }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
