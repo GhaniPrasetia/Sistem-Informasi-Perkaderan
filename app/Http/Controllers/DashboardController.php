@@ -72,12 +72,12 @@ class DashboardController extends Controller
                     });
 
             $chartKomisariat = Kader::select('komisariat', DB::raw('count(*) as total'))
-                    ->where('komisariat', Auth::user()->komisariat_id)
-                    ->groupBy('komisariat')
-                    ->get()->each(function ($items) {
-                        $items->komisariat = $items->ref_komisariat[0]->komisariat;
-                        $items->total = (int) $items->total;
-                    });
+                            ->where('komisariat', Auth::user()->komisariat_id)
+                            ->groupBy('komisariat')
+                            ->get()->each(function ($items) {
+                                $items->komisariat = $items->ref_komisariat[0]->komisariat;
+                                $items->total = (int) $items->total;
+                            });
 
             $chartImmawan = Kader::select('jenis_kelamin', DB::raw('count(*) as total'))
                     ->where('komisariat', Auth::user()->komisariat_id)
@@ -176,10 +176,10 @@ class DashboardController extends Controller
 
             $chartKomisariat = Kader::select('komisariat', DB::raw('count(*) as total'))
                                 ->groupBy('komisariat')
-                    ->get()->each(function ($items) {
-                        $items->komisariat = strtoupper($items->komisariat);
-                        $items->total = (int) $items->total;
-                    });
+                                ->get()->each(function ($items) {
+                                    $items->komisariat = $items->ref_komisariat[0]->komisariat;
+                                    $items->total = (int) $items->total;
+                                });
 
             $chartImmawan = Kader::select('jenis_kelamin', DB::raw('count(*) as total'))
                                 ->groupBy('jenis_kelamin')
@@ -285,6 +285,8 @@ class DashboardController extends Controller
                     $query->where('tahun_perkaderan', $request->tahun);
                 })->count();
 
+
+
         if(session('role_id')===3){
 
             $tahunPerkaderan = Kader::select('id')
@@ -316,107 +318,106 @@ class DashboardController extends Controller
                         });
 
             $chartFakultas = Kader::with('ref_perkaderan')
-            ->whereHas('ref_perkaderan', function($query) use ($request) {
-                $query->where('tahun_perkaderan', $request->tahun);
-            })->select('fakultas', DB::raw('count(*) as total'))
-            // ->where('user_id', Auth::user()->id)
-                    ->groupBy('fakultas')
-                    ->get()->each(function ($items) {
-                        $items->fakultas = $items->ref_fakultas[0]->fakultas;
-                        // $items->fakultas = strtoupper($items->fakultas);
-                        $items->total = (int) $items->total;
-                    });
+                ->whereHas('ref_perkaderan', function($query) use ($request) {
+                    $query->where('tahun_perkaderan', $request->tahun);
+                })->select('fakultas', DB::raw('count(*) as total'))
+                // ->where('user_id', Auth::user()->id)
+                        ->groupBy('fakultas')
+                        ->get()->each(function ($items) {
+                            $items->fakultas = $items->ref_fakultas[0]->fakultas;
+                            // $items->fakultas = strtoupper($items->fakultas);
+                            $items->total = (int) $items->total;
+                        });
 
             $chartProdi = Kader::with('ref_perkaderan')
-            ->whereHas('ref_perkaderan', function($query) use ($request) {
-                $query->where('tahun_perkaderan', $request->tahun);
-            })->select('prodi', DB::raw('count(*) as total'))
-            // ->where('user_id', Auth::user()->id)
-                    ->groupBy('prodi')
-                    ->get()->each(function ($items) {
-                        $items->prodi =  $items->ref_prodi[0]->prodi;
-                        // $items->prodi = strtoupper($items->prodi);
-                        $items->total = (int) $items->total;
-                    });
+                ->whereHas('ref_perkaderan', function($query) use ($request) {
+                    $query->where('tahun_perkaderan', $request->tahun);
+                })->select('prodi', DB::raw('count(*) as total'))
+                // ->where('user_id', Auth::user()->id)
+                        ->groupBy('prodi')
+                        ->get()->each(function ($items) {
+                            $items->prodi =  $items->ref_prodi[0]->prodi;
+                            // $items->prodi = strtoupper($items->prodi);
+                            $items->total = (int) $items->total;
+                        });
 
             $chartKomisariat = Kader::with('ref_perkaderan')
-            ->whereHas('ref_perkaderan', function($query) use ($request) {
-                $query->where('tahun_perkaderan', $request->tahun);
-            })->select('komisariat', DB::raw('count(*) as total'))
-            // ->where('user_id', Auth::user()->id)
-                    ->groupBy('komisariat')
-                    ->get()->each(function ($items) {
-                        $items->komisariat = strtoupper($items->ref_komisariat[0]->komisariat);
-                        $items->total = (int) $items->total;
-                    });
+                            ->whereHas('ref_perkaderan', function($query) use ($request) {
+                                $query->where('tahun_perkaderan', $request->tahun);
+                            })->select('komisariat', DB::raw('count(*) as total'))
+                            ->groupBy('komisariat')
+                            ->get()->each(function ($items) {
+                                $items->komisariat = strtoupper($items->ref_komisariat[0]->komisariat);
+                                $items->total = (int) $items->total;
+                            });
 
             $chartImmawan = Kader::with('ref_perkaderan')
-            ->whereHas('ref_perkaderan', function($query) use ($request) {
-                $query->where('tahun_perkaderan', $request->tahun);
-            })->select('jenis_kelamin', DB::raw('count(*) as total'))
-            // ->where('user_id', Auth::user()->id)
-                    ->groupBy('jenis_kelamin')
-                    ->get()
-                    ->map(function ($item) {
-                        // Convert jenis_kelamin to uppercase
-                        $item->jenis_kelamin = strtoupper($item->jenis_kelamin);
+                ->whereHas('ref_perkaderan', function($query) use ($request) {
+                    $query->where('tahun_perkaderan', $request->tahun);
+                })->select('jenis_kelamin', DB::raw('count(*) as total'))
+                // ->where('user_id', Auth::user()->id)
+                        ->groupBy('jenis_kelamin')
+                        ->get()
+                        ->map(function ($item) {
+                            // Convert jenis_kelamin to uppercase
+                            $item->jenis_kelamin = strtoupper($item->jenis_kelamin);
 
-                        // Determine the label based on jenis_kelamin
-                        if ($item->jenis_kelamin === 'PRIA') {
-                            $item->label = 'IMMAWAN';
-                        } elseif ($item->jenis_kelamin === 'WANITA') {
-                            $item->label = 'IMMAWATI';
-                        }
+                            // Determine the label based on jenis_kelamin
+                            if ($item->jenis_kelamin === 'PRIA') {
+                                $item->label = 'IMMAWAN';
+                            } elseif ($item->jenis_kelamin === 'WANITA') {
+                                $item->label = 'IMMAWATI';
+                            }
 
-                        // Convert total to integer
-                        $item->total = (int) $item->total;
+                            // Convert total to integer
+                            $item->total = (int) $item->total;
 
-                        // Unset jenis_kelamin as it's not needed anymore
-                        unset($item->jenis_kelamin);
+                            // Unset jenis_kelamin as it's not needed anymore
+                            unset($item->jenis_kelamin);
 
-                        return $item;
-                    });
+                            return $item;
+                        });
 
 
             $chartPerkaderanUtama = Kader::with('ref_perkaderan')
-            ->whereHas('ref_perkaderan', function($query) use ($request) {
-                $query->where('tahun_perkaderan', $request->tahun);
-            })->select('id')
-                    ->with(['ref_perkaderan' => function ($query) {
-                        $query->select('kader_id', 'kegiatan_perkaderan');
-                    }])
-                    // ->where('user_id', Auth::user()->id)
-                    ->get()
-                    ->pluck('ref_perkaderan')
-                    ->flatten()
-                    ->groupBy('kegiatan_perkaderan')
-                    ->map(function ($items, $kegiatan_perkaderan) {
-                        return [
-                            'kegiatan_perkaderan' => strtoupper($kegiatan_perkaderan),
-                            'total' => $items->count(),
-                        ];
-                    })
-                    ->values();
+                ->whereHas('ref_perkaderan', function($query) use ($request) {
+                    $query->where('tahun_perkaderan', $request->tahun);
+                })->select('id')
+                        ->with(['ref_perkaderan' => function ($query) {
+                            $query->select('kader_id', 'kegiatan_perkaderan');
+                        }])
+                        // ->where('user_id', Auth::user()->id)
+                        ->get()
+                        ->pluck('ref_perkaderan')
+                        ->flatten()
+                        ->groupBy('kegiatan_perkaderan')
+                        ->map(function ($items, $kegiatan_perkaderan) {
+                            return [
+                                'kegiatan_perkaderan' => strtoupper($kegiatan_perkaderan),
+                                'total' => $items->count(),
+                            ];
+                        })
+                        ->values();
 
             $chartPerkaderanKhusus = Kader::with('ref_perkaderan')
-            ->whereHas('ref_perkaderan', function($query) use ($request) {
-                $query->where('tahun_perkaderan', $request->tahun);
-            })->select('id')
-                    ->with(['ref_pimpinan' => function ($query) {
-                        $query->select('kader_id', 'kegiatan_pimpinan');
-                    }])
-                    // ->where('user_id', Auth::user()->id)
-                    ->get()
-                    ->pluck('ref_pimpinan')
-                    ->flatten()
-                    ->groupBy('kegiatan_pimpinan')
-                    ->map(function ($items, $kegiatan_pimpinan) {
-                        return [
-                            'kegiatan_pimpinan' => strtoupper($kegiatan_pimpinan),
-                            'total' => $items->count(),
-                        ];
-                    })
-                    ->values();
+                ->whereHas('ref_perkaderan', function($query) use ($request) {
+                    $query->where('tahun_perkaderan', $request->tahun);
+                })->select('id')
+                        ->with(['ref_pimpinan' => function ($query) {
+                            $query->select('kader_id', 'kegiatan_pimpinan');
+                        }])
+                        // ->where('user_id', Auth::user()->id)
+                        ->get()
+                        ->pluck('ref_pimpinan')
+                        ->flatten()
+                        ->groupBy('kegiatan_pimpinan')
+                        ->map(function ($items, $kegiatan_pimpinan) {
+                            return [
+                                'kegiatan_pimpinan' => strtoupper($kegiatan_pimpinan),
+                                'total' => $items->count(),
+                            ];
+                        })
+                        ->values();
         }else{
 
             $tahunPerkaderan = Kader::select('id')
@@ -448,103 +449,103 @@ class DashboardController extends Controller
 
 
             $chartFakultas = Kader::with('ref_perkaderan')
-            ->whereHas('ref_perkaderan', function($query) use ($request) {
-                $query->where('tahun_perkaderan', $request->tahun);
-            })->select('fakultas', DB::raw('count(*) as total'))
-                                ->groupBy('fakultas')
-                    ->get()->each(function ($items) {
-                        $items->fakultas = $items->ref_fakultas[0]->fakultas;
+                            ->whereHas('ref_perkaderan', function($query) use ($request) {
+                                $query->where('tahun_perkaderan', $request->tahun);
+                            })->select('fakultas', DB::raw('count(*) as total'))
+                                                ->groupBy('fakultas')
+                                    ->get()->each(function ($items) {
+                                        $items->fakultas = $items->ref_fakultas[0]->fakultas;
 
-                        // $items->fakultas = strtoupper($items->fakultas);
-                        $items->total = (int) $items->total;
-                    });
+                                        // $items->fakultas = strtoupper($items->fakultas);
+                                        $items->total = (int) $items->total;
+                                    });
 
             $chartProdi = Kader::with('ref_perkaderan')
-            ->whereHas('ref_perkaderan', function($query) use ($request) {
-                $query->where('tahun_perkaderan', $request->tahun);
-            })->select('prodi', DB::raw('count(*) as total'))
-                                ->groupBy('prodi')
-                    ->get()->each(function ($items) {
-                        $items->prodi =  $items->ref_prodi[0]->prodi;
+                        ->whereHas('ref_perkaderan', function($query) use ($request) {
+                            $query->where('tahun_perkaderan', $request->tahun);
+                        })->select('prodi', DB::raw('count(*) as total'))
+                                            ->groupBy('prodi')
+                                ->get()->each(function ($items) {
+                                    $items->prodi =  $items->ref_prodi[0]->prodi;
 
-                        // $items->prodi = strtoupper($items->prodi);
-                        $items->total = (int) $items->total;
-                    });
+                                    // $items->prodi = strtoupper($items->prodi);
+                                    $items->total = (int) $items->total;
+                                });
 
             $chartKomisariat = Kader::with('ref_perkaderan')
-            ->whereHas('ref_perkaderan', function($query) use ($request) {
-                $query->where('tahun_perkaderan', $request->tahun);
-            })->select('komisariat', DB::raw('count(*) as total'))
-                                ->groupBy('komisariat')
-                    ->get()->each(function ($items) {
-                        $items->komisariat = strtoupper($items->ref_komisariat[0]->komisariat);
-                        $items->total = (int) $items->total;
-                    });
+                            ->whereHas('ref_perkaderan', function($query) use ($request) {
+                                $query->where('tahun_perkaderan', $request->tahun);
+                            })->select('komisariat', DB::raw('count(*) as total'))
+                            ->groupBy('komisariat')
+                            ->get()->each(function ($items) {
+                                $items->komisariat = strtoupper($items->ref_komisariat[0]->komisariat);
+                                $items->total = (int) $items->total;
+                            });
 
             $chartImmawan = Kader::with('ref_perkaderan')
-            ->whereHas('ref_perkaderan', function($query) use ($request) {
-                $query->where('tahun_perkaderan', $request->tahun);
-            })->select('jenis_kelamin', DB::raw('count(*) as total'))
-                                ->groupBy('jenis_kelamin')
-                    ->get()
-                    ->map(function ($item) {
-                        // Convert jenis_kelamin to uppercase
-                        $item->jenis_kelamin = strtoupper($item->jenis_kelamin);
+                            ->whereHas('ref_perkaderan', function($query) use ($request) {
+                                $query->where('tahun_perkaderan', $request->tahun);
+                            })->select('jenis_kelamin', DB::raw('count(*) as total'))
+                                                ->groupBy('jenis_kelamin')
+                                    ->get()
+                                    ->map(function ($item) {
+                                        // Convert jenis_kelamin to uppercase
+                                        $item->jenis_kelamin = strtoupper($item->jenis_kelamin);
 
-                        // Determine the label based on jenis_kelamin
-                        if ($item->jenis_kelamin === 'PRIA') {
-                            $item->label = 'IMMAWAN';
-                        } elseif ($item->jenis_kelamin === 'WANITA') {
-                            $item->label = 'IMMAWATI';
-                        }
+                                        // Determine the label based on jenis_kelamin
+                                        if ($item->jenis_kelamin === 'PRIA') {
+                                            $item->label = 'IMMAWAN';
+                                        } elseif ($item->jenis_kelamin === 'WANITA') {
+                                            $item->label = 'IMMAWATI';
+                                        }
 
-                        // Convert total to integer
-                        $item->total = (int) $item->total;
+                                        // Convert total to integer
+                                        $item->total = (int) $item->total;
 
-                        // Unset jenis_kelamin as it's not needed anymore
-                        unset($item->jenis_kelamin);
+                                        // Unset jenis_kelamin as it's not needed anymore
+                                        unset($item->jenis_kelamin);
 
-                        return $item;
-                    });
+                                        return $item;
+                                    });
 
 
             $chartPerkaderanUtama = Kader::with('ref_perkaderan')
-            ->whereHas('ref_perkaderan', function($query) use ($request) {
-                $query->where('tahun_perkaderan', $request->tahun);
-            })->select('id')
-                    ->with(['ref_perkaderan' => function ($query) {
-                        $query->select('kader_id', 'kegiatan_perkaderan');
-                    }])
-                                        ->get()
-                    ->pluck('ref_perkaderan')
-                    ->flatten()
-                    ->groupBy('kegiatan_perkaderan')
-                    ->map(function ($items, $kegiatan_perkaderan) {
-                        return [
-                            'kegiatan_perkaderan' => strtoupper($kegiatan_perkaderan),
-                            'total' => $items->count(),
-                        ];
-                    })
-                    ->values();
+                                    ->whereHas('ref_perkaderan', function($query) use ($request) {
+                                        $query->where('tahun_perkaderan', $request->tahun);
+                                    })->select('id')
+                                            ->with(['ref_perkaderan' => function ($query) {
+                                                $query->select('kader_id', 'kegiatan_perkaderan');
+                                            }])
+                                                                ->get()
+                                            ->pluck('ref_perkaderan')
+                                            ->flatten()
+                                            ->groupBy('kegiatan_perkaderan')
+                                            ->map(function ($items, $kegiatan_perkaderan) {
+                                                return [
+                                                    'kegiatan_perkaderan' => strtoupper($kegiatan_perkaderan),
+                                                    'total' => $items->count(),
+                                                ];
+                                            })
+                                            ->values();
 
             $chartPerkaderanKhusus = Kader::with('ref_perkaderan')
-            ->whereHas('ref_perkaderan', function($query) use ($request) {
-                $query->where('tahun_perkaderan', $request->tahun);
-            })->select('id')
-                    ->with(['ref_pimpinan' => function ($query) {
-                        $query->select('kader_id', 'kegiatan_pimpinan');
-                    }])
-                                        ->get()
-                    ->pluck('ref_pimpinan')
-                    ->flatten()
-                    ->groupBy('kegiatan_pimpinan')
-                    ->map(function ($items, $kegiatan_pimpinan) {
-                        return [
-                            'kegiatan_pimpinan' => strtoupper($kegiatan_pimpinan),
-                            'total' => $items->count(),
-                        ];
-                    })
-                    ->values();
+                                    ->whereHas('ref_perkaderan', function($query) use ($request) {
+                                        $query->where('tahun_perkaderan', $request->tahun);
+                                    })->select('id')
+                                            ->with(['ref_pimpinan' => function ($query) {
+                                                $query->select('kader_id', 'kegiatan_pimpinan');
+                                            }])
+                                                                ->get()
+                                            ->pluck('ref_pimpinan')
+                                            ->flatten()
+                                            ->groupBy('kegiatan_pimpinan')
+                                            ->map(function ($items, $kegiatan_pimpinan) {
+                                                return [
+                                                    'kegiatan_pimpinan' => strtoupper($kegiatan_pimpinan),
+                                                    'total' => $items->count(),
+                                                ];
+                                            })
+                                            ->values();
         }
 
         // return $chartKomisariat;

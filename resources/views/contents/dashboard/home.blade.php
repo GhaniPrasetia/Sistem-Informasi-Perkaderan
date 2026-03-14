@@ -70,7 +70,7 @@
                 </div>
             </div>
         </div>
-        @if (session('role_id') == 2)
+        @if (session('role_id') == 1 || session('role_id') == 2)
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
@@ -498,33 +498,33 @@ var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
         strokeOpacity: 0.1
         })
 
-var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
-        maxDeviation: 0.3,
-        renderer: yRenderer,
-        strictMinMax: true, // Ensure axis labels are integers
-        extraMax: 0.1, // Rounds up to the nearest integer
-        extraMin: 0.1 // Rounds down to the nearest integer
-    }));
-
-        var series = chart.series.push(am5xy.ColumnSeries.new(root, {
-        name: "Series 1",
-        xAxis: xAxis,
-        yAxis: yAxis,
-        valueYField: "total",
-        sequencedInterpolation: true,
-        categoryXField: "komisariat",
-        tooltip: am5.Tooltip.new(root, {
-            labelText: "{valueY}"
-        })
+        var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
+            maxDeviation: 0.3,
+            renderer: yRenderer,
+            strictMinMax: true, // Ensure axis labels are integers
+            extraMax: 0.1, // Rounds up to the nearest integer
+            extraMin: 0.1 // Rounds down to the nearest integer
         }));
 
+        var series = chart.series.push(am5xy.ColumnSeries.new(root, {
+            name: "Series 1",
+            xAxis: xAxis,
+            yAxis: yAxis,
+            valueYField: "total",
+            sequencedInterpolation: true,
+            categoryXField: "komisariat",
+            tooltip: am5.Tooltip.new(root, {
+                labelText: "{valueY}"
+            })
+            }));
+
         series.columns.template.setAll({ cornerRadiusTL: 5, cornerRadiusTR: 5, strokeOpacity: 0 });
-        series.columns.template.adapters.add("fill", function (fill, target) {
-        return chart.get("colors").getIndex(series.columns.indexOf(target));
+            series.columns.template.adapters.add("fill", function (fill, target) {
+            return chart.get("colors").getIndex(series.columns.indexOf(target));
         });
 
         series.columns.template.adapters.add("stroke", function (stroke, target) {
-        return chart.get("colors").getIndex(series.columns.indexOf(target));
+            return chart.get("colors").getIndex(series.columns.indexOf(target));
         });
 
         var data = {!! $chartKomisariat !!};
