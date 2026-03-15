@@ -75,7 +75,7 @@ $plugins = ['datatable', 'swal', 'select2'];
                         </button>
                     </div>
                     <div class="col-1 mt-1 text-sm-left">
-                        <button type="submit" class="btn btn-danger btn-block btn-rounded waves-effect waves-light btn-reset">
+                        <button type="button" class="btn btn-danger btn-block btn-rounded waves-effect waves-light btn-reset">
                             <i class="bx bx-plus-circle mr-1"></i>
                             reset
                         </button>

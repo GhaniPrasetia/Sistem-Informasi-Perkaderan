@@ -389,6 +389,6 @@ $(() => {
         $('#kampus').val('').trigger('change');
         $('#perkaderan').val('').trigger('change');
         $('#perkaderanKhusus').val('').trigger('change');
-        table.ajax.reload(null, false);
+        table.ajax.url(BASE_URL + 'kader/data').load();
     });
 })
