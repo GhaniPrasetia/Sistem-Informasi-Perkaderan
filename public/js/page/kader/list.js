@@ -277,9 +277,9 @@ $(() => {
             type: 'get',
             dataType: 'json',
             data: function(d){
-                d.fakultas = $('#fakultas').val();
-                d.prodi = $('#prodi').val();
-                d.kampus = $('#kampus').val();
+                d.fakultas = $('#fakultasFilter').val();
+                d.prodi = $('#prodiFilter').val();
+                d.kampus = $('#kampusFilter').val();
                 d.perkaderan = $('#perkaderan').val();
                 d.perkaderanKhusus = $('#perkaderanKhusus').val();
             }
@@ -384,9 +384,9 @@ $(() => {
     });
 
     $('.btn-reset').on('click', function () {
-        $('#fakultas').val('').trigger('change');
-        $('#prodi').val('').trigger('change');
-        $('#kampus').val('').trigger('change');
+        $('#fakultasFilter').val('').trigger('change');
+        $('#prodiFilter').val('').trigger('change');
+        $('#kampusFilter').val('').trigger('change');
         $('#perkaderan').val('').trigger('change');
         $('#perkaderanKhusus').val('').trigger('change');
         table.ajax.url(BASE_URL + 'kader/data').load();

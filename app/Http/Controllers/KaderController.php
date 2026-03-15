@@ -696,7 +696,7 @@ class KaderController extends Controller
     }
 
     public function filter(Request $request){
-
+                    // return $request;
         if (
             empty($request->fakultas) &&
             empty($request->prodi) &&
@@ -707,48 +707,94 @@ class KaderController extends Controller
             return DataTables::of(collect())->make(true);
         }
 
-        $kader = Kader::query()
-            ->when($request->fakultas, fn($q) =>
-                $q->whereHas('ref_fakultas', fn($x) =>
-                    $x->where('fakultas', $request->fakultas)
-                )
-            )
 
-            ->when($request->prodi, fn($q) =>
-                $q->whereHas('ref_prodi', fn($x) =>
-                    $x->where('prodi', $request->prodi)
+        if(session('role_id')===3){
+            $kader = Kader::query()
+                ->when($request->fakultas, fn($q) =>
+                    $q->whereHas('ref_fakultas', fn($x) =>
+                        $x->where('fakultas', $request->fakultas)
+                    )
                 )
-            )
 
-            ->when($request->kampus, fn($q) =>
-                $q->whereHas('ref_universitas', fn($x) =>
-                    $x->where('kampus', $request->kampus)
+                ->when($request->prodi, fn($q) =>
+                    $q->whereHas('ref_prodi', fn($x) =>
+                        $x->where('prodi', $request->prodi)
+                    )
                 )
-            )
 
-            ->when($request->perkaderan, fn($q) =>
-                $q->whereHas('ref_perkaderan', fn($x) =>
-                    $x->where('kegiatan_perkaderan', $request->perkaderan)
+                ->when($request->kampus, fn($q) =>
+                    $q->whereHas('ref_universitas', fn($x) =>
+                        $x->where('kampus', $request->kampus)
+                    )
                 )
-            )
 
-            ->when($request->perkaderanKhusus, fn($q) =>
-                $q->whereHas('ref_pimpinan', fn($x) =>
-                    $x->where('kegiatan_pimpinan', $request->perkaderanKhusus)
+                ->when($request->perkaderan, fn($q) =>
+                    $q->whereHas('ref_perkaderan', fn($x) =>
+                        $x->where('kegiatan_perkaderan', $request->perkaderan)
+                    )
                 )
-            )
 
-            ->with([
-                'ref_fakultas:id,fakultas',
-                'ref_komisariat:id,komisariat',
-                'ref_prodi:id,prodi',
-                'ref_universitas:id,kampus',
-                'ref_perkaderan:id,kader_id,kegiatan_perkaderan,tahun_perkaderan',
-                'ref_pimpinan:id,kader_id,kegiatan_pimpinan,tahun_pimpinan'
-            ])
-            ->select('kader.*')
-            ->where('komisariat', Auth::User()->komisariat_id)
-            ->get();
+                ->when($request->perkaderanKhusus, fn($q) =>
+                    $q->whereHas('ref_pimpinan', fn($x) =>
+                        $x->where('kegiatan_pimpinan', $request->perkaderanKhusus)
+                    )
+                )
+
+                ->with([
+                    'ref_fakultas:id,fakultas',
+                    'ref_komisariat:id,komisariat',
+                    'ref_prodi:id,prodi',
+                    'ref_universitas:id,kampus',
+                    'ref_perkaderan:id,kader_id,kegiatan_perkaderan,tahun_perkaderan',
+                    'ref_pimpinan:id,kader_id,kegiatan_pimpinan,tahun_pimpinan'
+                ])
+                ->select('kader.*')
+                ->where('komisariat', Auth::User()->komisariat_id)
+                ->get();
+        } else if (session('role_id')==2 || session('role_id')==1 ) {
+            $kader = Kader::query()
+                ->when($request->fakultas, fn($q) =>
+                    $q->whereHas('ref_fakultas', fn($x) =>
+                        $x->where('fakultas', $request->fakultas)
+                    )
+                )
+
+                ->when($request->prodi, fn($q) =>
+                    $q->whereHas('ref_prodi', fn($x) =>
+                        $x->where('prodi', $request->prodi)
+                    )
+                )
+
+                ->when($request->kampus, fn($q) =>
+                    $q->whereHas('ref_universitas', fn($x) =>
+                        $x->where('kampus', $request->kampus)
+                    )
+                )
+
+                ->when($request->perkaderan, fn($q) =>
+                    $q->whereHas('ref_perkaderan', fn($x) =>
+                        $x->where('kegiatan_perkaderan', $request->perkaderan)
+                    )
+                )
+
+                ->when($request->perkaderanKhusus, fn($q) =>
+                    $q->whereHas('ref_pimpinan', fn($x) =>
+                        $x->where('kegiatan_pimpinan', $request->perkaderanKhusus)
+                    )
+                )
+
+                ->with([
+                    'ref_fakultas:id,fakultas',
+                    'ref_komisariat:id,komisariat',
+                    'ref_prodi:id,prodi',
+                    'ref_universitas:id,kampus',
+                    'ref_perkaderan:id,kader_id,kegiatan_perkaderan,tahun_perkaderan',
+                    'ref_pimpinan:id,kader_id,kegiatan_pimpinan,tahun_pimpinan'
+                ])
+                ->select('kader.*')
+                // ->where('komisariat', Auth::User()->komisariat_id)
+                ->get();
+        }
 
         return DataTables::of($kader)
             ->addIndexColumn()
