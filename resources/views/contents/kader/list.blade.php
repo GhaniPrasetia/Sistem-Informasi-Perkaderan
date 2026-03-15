@@ -13,14 +13,24 @@ $plugins = ['datatable', 'swal', 'select2'];
     <div class="col-12">
         <div class="card">
             @if (rbacCheck('kader', 2))
-            <form action="{{ route('kader.filter') }}" method="post" id="form-kader" autocomplete="off">
+            <form action="{{ route('kader.filter') }}" method="post" autocomplete="off">
             @csrf
             <div class="card-body">
                 <div class="row mb-2 ">
                     @method('POST')
                     <div class="col-2 mt-2">
                         <div class="form-group">
-                            <select class="form-control" name="fakultas" id="fakultas">
+                            <select class="form-control" name="kampusFilter" id="kampusFilter">
+                                <option value="">--Universitas--</option>
+                                @foreach ($FilterKampus as $FilterKampus => $dt )
+                                    <option value="{{$dt}}">{{$dt}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-2 mt-2">
+                        <div class="form-group">
+                            <select class="form-control" name="fakultasFilter" id="fakultasFilter">
                                 <option value="">--Fakultas-- </option>
                                 @foreach ($FilterFakultas as $FilterFakultas => $dt )
                                     <option value="{{$dt}}">{{$dt}}</option>
@@ -30,19 +40,9 @@ $plugins = ['datatable', 'swal', 'select2'];
                     </div>
                     <div class="col-2 mt-2">
                         <div class="form-group">
-                            <select class="form-control" name="prodi" id="prodi">
+                            <select class="form-control" name="prodiFilter" id="prodiFilter">
                                 <option value="">--Program Studi--</option>
                                 @foreach ($Filterprodi as $Filterprodi => $dt )
-                                    <option value="{{$dt}}">{{$dt}}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-2 mt-2">
-                        <div class="form-group">
-                            <select class="form-control" name="kampus" id="kampus">
-                                <option value="">--Universitas--</option>
-                                @foreach ($FilterKampus as $FilterKampus => $dt )
                                     <option value="{{$dt}}">{{$dt}}</option>
                                 @endforeach
                             </select>
@@ -269,14 +269,13 @@ $plugins = ['datatable', 'swal', 'select2'];
                             </div>
                         </div>
 
-
                         <div class="col-lg-4">
                             <div class="form-group">
                                 <label for="universitas">Perguruan Tinggi</label>
-                                <select class="form-control" name="universitas" id="universitas" onchange="get_fakultas(this)">
+                                <select class="form-control" name="universitas" id="kampus1" onchange="get_fakultas(this)">
                                     <option value="" selected> Perguruan Tinggi </option>
                                     @foreach ($kampus as $dt )
-                                        <option data-kampus="{{$dt->id}}" value="{{$dt->id}}">{{$dt->kampus}}</option>
+                                        <option value="{{$dt->id}}">{{$dt->kampus}}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -285,11 +284,11 @@ $plugins = ['datatable', 'swal', 'select2'];
                         <div class="col-lg-4">
                             <div class="form-group">
                                 <label for="fakultas">Fakultas</label>
-                                <select class="form-control select2" name="fakultas" id="fakultas" onchange="get_prodi(this)">
+                                <select class="form-control select2" name="fakultas" id="fakultas1" onchange="get_prodi(this)">
                                     <option value="" selected> Fakultas </option>
-                                    @foreach ($fakultas as $dt )
-                                        <option value="{{$dt->fakultas}}">{{$dt->fakultas}}</option>
-                                    @endforeach
+                                    {{-- @foreach ($fakultas as $dt )
+                                        <option value="{{$dt->id}}">{{$dt->fakultas}}</option>
+                                    @endforeach --}}
                                 </select>
                             </div>
                         </div>
@@ -297,11 +296,11 @@ $plugins = ['datatable', 'swal', 'select2'];
                         <div class="col-lg-4">
                             <div class="form-group">
                                 <label for="prodi">Program Studi</label>
-                                <select class="form-control select2" name="prodi" id="prodi">
+                                <select class="form-control select2" name="prodi" id="prodi1">
                                     <option value="" selected> Program Studi </option>
-                                    @foreach ($prodi as $dt )
-                                        <option value="{{$dt->prodi}}">{{$dt->prodi}}</option>
-                                    @endforeach
+                                    {{-- @foreach ($prodi as $dt )
+                                        <option value="{{$dt->id}}">{{$dt->prodi}}</option>
+                                    @endforeach --}}
                                 </select>
                             </div>
                         </div>

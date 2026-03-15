@@ -1006,28 +1006,49 @@
                 dataType: 'json',
                 processData: false,
                 contentType: false,
-                beforeSend: () => {
+
+                beforeSend: function () {
                     clearErrorMessage();
                     $('#modal-kader').find('.modal-dialog').LoadingOverlay('show');
                 },
-                success: (res) => {
-                    $('#modal-kader').find('.modal-dialog').LoadingOverlay('hide', true);
-                    $(this)[0].reset();
-                    clearErrorMessage();
-                    window.location.reload();
-                    $('#modal-kader').modal('hide');
-                },
-                error: ({ status, responseJSON }) => {
+
+                success: function (res) {
                     $('#modal-kader').find('.modal-dialog').LoadingOverlay('hide', true);
 
-                    if (status == 422) {
-                        generateErrorMessage(responseJSON);
-                        return false;
+                    if (res.status === true) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: res.msg ?? 'Data berhasil disimpan',
+                            confirmButtonText: 'OK'
+                        }).then(function () {
+                            window.history.back();
+                        });
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: res.msg ?? 'Terjadi kesalahan',
+                        });
+                    }
+                },
+
+                error: function (xhr) {
+                    $('#modal-kader').find('.modal-dialog').LoadingOverlay('hide', true);
+
+                    if (xhr.status == 422) {
+                        generateErrorMessage(xhr.responseJSON);
+                        return;
                     }
 
-                    showErrorToastr('oops', responseJSON.msg)
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: xhr.responseJSON?.msg ?? 'Server error'
+                    });
                 }
-            })
-        })
+            });
+        });
     </script>
 @endpush

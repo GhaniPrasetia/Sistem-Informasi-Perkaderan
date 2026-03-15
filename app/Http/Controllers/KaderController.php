@@ -171,6 +171,7 @@ class KaderController extends Controller
 
     public function store(Request $request)
     {
+        // return  $request;
         $id = $request->input('id');
 
         // if ($id) {
@@ -530,157 +531,11 @@ class KaderController extends Controller
             }
 
 
-            return redirect()->route('kader')->with('success', 'Data berhasil disimpan');
+            return response()->json(['status' => true, 'msg' => 'Data berhasil disimpan'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'msg' => $e->getMessage()], 400);
         }
     }
-
-//     public function store(Request $request)
-// {
-//     $id = $request->id;
-
-//     /* ================= VALIDATION ================= */
-
-//     $rules = [
-//         'nama_lengkap' => 'required',
-//         'no_hp' => 'required',
-//         'email' => 'required',
-//         'sosial_media' => 'required',
-//         'jenis_kelamin' => 'required',
-//         'agama' => 'required',
-//         'kebangsaan' => 'required',
-//         'status_menikah' => 'required',
-//         'tanggal_lahir' => 'required',
-//         'tempat_lahir' => 'required',
-//         'pc' => 'required',
-//         'komisariat' => 'required',
-//         'universitas' => 'required',
-//         'fakultas' => 'required',
-//         'prodi' => 'required',
-//         'domisili' => 'required',
-//     ];
-
-//     if (!$id) {
-//         $rules['foto'] = 'required|image|mimes:jpeg,png,jpg|max:5240';
-//     }
-
-//     $request->validate($rules);
-
-//     \DB::beginTransaction();
-
-//     try {
-
-//         /* ================= UPLOAD FOTO ================= */
-
-//         $fotoName = null;
-
-//         if ($request->hasFile('foto')) {
-//             $file = $request->file('foto');
-//             $fotoName = '/foto/' . time() . '_' . $file->getClientOriginalName();
-//             $file->storeAs('public', $fotoName);
-//         }
-
-//         /* ================= DATA KADER ================= */
-
-//         $kaderData = [
-//             'nama_lengkap' => $request->nama_lengkap,
-//             'no_hp' => $request->no_hp,
-//             'email' => $request->email,
-//             'sosial_media' => $request->sosial_media,
-//             'jenis_kelamin' => $request->jenis_kelamin,
-//             'agama' => $request->agama,
-//             'kebangsaan' => $request->kebangsaan,
-//             'status_menikah' => $request->status_menikah,
-//             'tanggal_lahir' => $request->tanggal_lahir,
-//             'tempat_lahir' => $request->tempat_lahir,
-//             'pc' => $request->pc,
-//             'komisariat' => $request->komisariat,
-//             'universitas' => $request->universitas,
-//             'fakultas' => $request->fakultas,
-//             'prodi' => $request->prodi,
-//             'domisili' => $request->domisili,
-//             'user_id' => auth()->id(),
-//         ];
-
-//         if ($fotoName) {
-//             $kaderData['foto'] = $fotoName;
-//         }
-
-//         /* ================= INSERT / UPDATE ================= */
-
-//         if ($id) {
-//             Kader::where('id', $id)->update($kaderData);
-//             $kaderId = $id;
-//         } else {
-//             $kader = Kader::create($kaderData);
-//             $kaderId = $kader->id;
-//         }
-
-//         /* ================= HELPER FUNCTION ================= */
-
-//         $insertRepeater = function ($model, $fields) use ($request, $kaderId) {
-//             $inputs = [];
-//             foreach ($fields as $field) {
-//                 $inputs[$field] = $request->input($field);
-//             }
-
-//             if (!$inputs[array_key_first($inputs)]) return;
-
-//             $count = count($inputs[array_key_first($inputs)]);
-//             for ($i = 0; $i < $count; $i++) {
-//                 $data = ['kader_id' => $kaderId];
-//                 foreach ($fields as $field) {
-//                     $data[$field] = $inputs[$field][$i] ?? null;
-//                 }
-//                 $model::create($data);
-//             }
-//         };
-
-//         /* ================= REPEATER ================= */
-
-//         // Riwayat Sekolah
-//         $insertRepeater(Ref_Riwayat_Sekolah::class, [
-//             'jenjang_sekolah','nama_sekolah','tahun_lulus'
-//         ]);
-
-//         // Pendidikan Terakhir
-//         $insertRepeater(Ref_Pendidikan_Terakhir::class, [
-//             'pendidikan_terakhir','status_pendidikan_terakhir'
-//         ]);
-
-//         // Pengalaman IMM
-//         $insertRepeater(Ref_Pengalaman_Organisasi_IMM::class, [
-//             'posisi_jabatan','mulai_organisasi','selesai_organisasi'
-//         ]);
-
-//         // Pengalaman Lainnya
-//         $insertRepeater(Ref_Pengalaman_Organisasi_Lainnya::class, [
-//             'tempat','posisi_jabatan_lainnya','mulai_organisasi','selesai_organisasi'
-//         ]);
-
-//         // Perkaderan
-//         $insertRepeater(Ref_Perkaderan::class, [
-//             'kegiatan_perkaderan','tahun_perkaderan'
-//         ]);
-
-//         // Pimpinan
-//         $insertRepeater(Ref_Pimpinan::class, [
-//             'kegiatan_pimpinan','tahun_pimpinan'
-//         ]);
-
-//         \DB::commit();
-
-//         return response()->json(['status' => true], 200);
-
-//     } catch (\Exception $e) {
-//         \DB::rollBack();
-//         return response()->json([
-//             'status' => false,
-//             'msg' => $e->getMessage()
-//         ], 400);
-//     }
-// }
 
     public function show_edit_form(Request $request)
     {
@@ -791,16 +646,27 @@ class KaderController extends Controller
     public function delete(Request $request)
     {
         try {
+            $kader = Kader::find($request->id);
 
-            $user = Kader::find($request->id);
-
-            $user->delete();
-
-            if ($user->trashed()) {
-                return response()->json(['status' => true], 200);
+            if (!$kader) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => 'Data tidak ditemukan'
+                ], 404);
             }
+
+            $kader->delete();
+
+            return response()->json([
+                'status' => true,
+                'msg' => 'Data berhasil dihapus'
+            ], 200);
+
         } catch (\Exception $e) {
-            return response()->json(['status' => false, 'msg' => $e->getMessage()], 400);
+            return response()->json([
+                'status' => false,
+                'msg' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -812,7 +678,8 @@ class KaderController extends Controller
             $option .= '<option data-kampus="' . $value->kampus_id . '" data-fakultas="' . $value->id . '" value="' . $value->id . '">' . $value->fakultas . '</option>';
         }
 
-        echo json_encode($option);
+        // echo json_encode($option);
+        return response($option);
     }
 
     public function get_prodi(Request $request)
@@ -824,11 +691,11 @@ class KaderController extends Controller
             $option .= '<option data-fakultas="' . $value->fakultas_id . '" data-kampus="' . $value->kampus_id . '" value="' . $value->id . '">' . $value->prodi . '</option>';
         }
 
-        echo json_encode($option);
+        // echo json_encode($option);
+        return response($option);
     }
 
     public function filter(Request $request){
-        // return $request;
 
         if (
             empty($request->fakultas) &&
@@ -879,33 +746,10 @@ class KaderController extends Controller
                 'ref_perkaderan:id,kader_id,kegiatan_perkaderan,tahun_perkaderan',
                 'ref_pimpinan:id,kader_id,kegiatan_pimpinan,tahun_pimpinan'
             ])
-
             ->select('kader.*')
+            ->where('komisariat', Auth::User()->komisariat_id)
             ->get();
 
-            // $filters = array_filter([
-            //     $request->fakultas,
-            //     $request->prodi,
-            //     $request->kampus,
-            //     $request->perkaderan,
-            //     $request->perkaderanKhusus
-            // ]);
-
-            // $title = 'Kader';
-
-            // if (!empty($filters)) {
-            //     $title .= ' - ' . implode(' | ', $filters);
-            // }
-
-            // return view('contents.kader.filter', [
-            //     'title' => $title,
-            //     'kader' => $kader,
-            //     'FilterKampus' => $FilterKampus,
-            //     'FilterFakultas' => $FilterFakultas,
-            //     'Filterprodi' => $Filterprodi,
-            //     'FilterPerkaderan' => $FilterPerkaderan,
-            //     'FilterPerkaderanPimpinan' => $FilterPerkaderanPimpinan,
-            // ]);
         return DataTables::of($kader)
             ->addIndexColumn()
             ->make(true);

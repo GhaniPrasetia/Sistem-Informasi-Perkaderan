@@ -1,51 +1,60 @@
 let table;
+
 function get_fakultas(dt){
-    var selected = $(dt).find('option:selected');
-    var val = selected.data('kampus');
-    console.log(val);
+    var val = $(dt).val();
+
     $.ajax({
         url: BASE_URL + 'kader/get-fakultas',
         type: 'get',
-        data: {
-            id:val
-        },
-        dataType: 'json',
-        success: (res) => {
-            $("#fakultas").html(res)
-        },
-    })
+        data: { id: val },
+        success: function(res){
+            $('#fakultas1').html(res);
+            $('#prodi1').html('<option value="">-- Pilih Program Studi --</option>');
+        }
+    });
 }
 
 function get_prodi(dt){
-    var selected = $(dt).find('option:selected');
-    var val = selected.data('fakultas');
-    console.log(val);
+    var val = $(dt).val();
+
     $.ajax({
         url: BASE_URL + 'kader/get-prodi',
         type: 'get',
-        data: {
-            fakultas:val
-        },
-        dataType: 'json',
-        success: (res) => {
-            $("#prodi").html(res)
-        },
-    })
+        data: { fakultas: val },
+        success: function(res){
+            $('#prodi1').html(res);
+        }
+    });
 }
 
-
 $(() => {
-    $('#fakultas').select2({
+    $('#fakultas1').select2({
         width: '100%',
     });
 
-    $('#prodi').select2({
+    $('#prodi1').select2({
         width: '100%',
     });
 
-    $('#kampus').select2({
+    $('#kampus1').select2({
         width: '100%',
     });
+
+
+    $('#fakultasFilter').select2({
+        width: '100%',
+    });
+
+
+    $('#prodiFilter').select2({
+        width: '100%',
+    });
+
+
+    $('#kampusFilter').select2({
+        width: '100%',
+    });
+
 
     $('#perkaderan').select2({
         width: '100%',
@@ -116,7 +125,6 @@ $(() => {
     }
 
     $('#form-kader').on('submit', function (e) {
-
         e.preventDefault();
 
         var data = new FormData(this);
@@ -128,36 +136,50 @@ $(() => {
             dataType: 'json',
             processData: false,
             contentType: false,
-            beforeSend: () => {
+
+            beforeSend: function () {
                 clearErrorMessage();
                 $('#modal-kader').find('.modal-dialog').LoadingOverlay('show');
             },
-            success: (res) => {
+
+            success: function (res) {
                 $('#modal-kader').find('.modal-dialog').LoadingOverlay('hide', true);
 
                 if (res.status === true) {
                     Swal.fire({
                         icon: 'success',
                         title: 'Berhasil',
-                        text: res.msg,
+                        text: res.msg ?? 'Data berhasil disimpan',
                         confirmButtonText: 'OK'
-                    }).then(() => {
-                        window.history.back(); // kembali ke halaman sebelumnya
+                    }).then(function () {
+                        window.history.back();
+                    });
+                }
+                else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: res.msg ?? 'Terjadi kesalahan',
                     });
                 }
             },
-            error: ({ status, responseJSON }) => {
+
+            error: function (xhr) {
                 $('#modal-kader').find('.modal-dialog').LoadingOverlay('hide', true);
 
-                if (status == 422) {
-                    generateErrorMessage(responseJSON);
-                    return false;
+                if (xhr.status == 422) {
+                    generateErrorMessage(xhr.responseJSON);
+                    return;
                 }
 
-                showErrorToastr('oops', responseJSON.msg)
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: xhr.responseJSON?.msg ?? 'Server error'
+                });
             }
-        })
-    })
+        });
+    });
 
     $(document).ready(function() {
         $(document).on('click', '.repeater-add-btn-pendidikan', function() {
@@ -240,6 +262,7 @@ $(() => {
     });
 
     $('.btn-tambah').on('click', function () {
+
         $('#form-kader')[0].reset();
         clearErrorMessage();
         $('#modal-kader').modal('show');
@@ -305,12 +328,9 @@ $(() => {
         }, {
             data: 'foto',
             render: function(data, type, row) {
-                // Check if the data is available
                 if (data) {
-                    // Return the HTML for displaying the image
                     return '<img src="storage/' + data + '" alt="Image" width="100" height="100">';
                 } else {
-                    // If data is not available, you can return a placeholder or an empty string
                     return 'No Image';
                 }
             }
@@ -327,28 +347,11 @@ $(() => {
                 });
 
                 const button_delete = $('<button>', {
+                    type: 'button',
                     class: 'btn btn-danger btn-delete',
                     html: '<i class="bx bx-trash"></i>',
                     'data-id': data,
                     title: 'Delete Data',
-                    'data-placement': 'top',
-                    'data-toggle': 'tooltip'
-                });
-
-                const button_reset_password = $('<button>', {
-                    class: 'btn btn-secondary btn-reset-password',
-                    html: '<i class="bx bx-key"></i>',
-                    'data-id': data,
-                    title: 'Reset Password',
-                    'data-placement': 'top',
-                    'data-toggle': 'tooltip'
-                });
-
-                const button_update_role = $('<button>', {
-                    class: 'btn btn-success btn-update-role',
-                    html: '<i class="bx bx-user"></i>',
-                    'data-id': data,
-                    title: 'Peran Pengguna',
                     'data-placement': 'top',
                     'data-toggle': 'tooltip'
                 });
@@ -386,6 +389,6 @@ $(() => {
         $('#kampus').val('').trigger('change');
         $('#perkaderan').val('').trigger('change');
         $('#perkaderanKhusus').val('').trigger('change');
-        table.ajax.url(BASE_URL + 'kader/data').load();
+        table.ajax.reload(null, false);
     });
 })
