@@ -50,57 +50,118 @@ class KaderController extends Controller
             ->get();
 
         // Filter Data
-        $FilterCabang = Kader::with('ref_universitas')
-                            ->get()
-                            ->pluck('ref_universitas')
-                            ->flatten()
-                            ->pluck('kampus')
-                            ->unique()
-                            ->values();
+         if(session('role_id')===3){
+            $FilterCabang = Kader::with('ref_universitas')
+                                ->where('komisariat', Auth::User()->komisariat_id)
+                                ->get()
+                                ->pluck('ref_universitas')
+                                ->flatten()
+                                ->pluck('kampus')
+                                ->unique()
+                                ->values();
 
-        $FilterKampus = Kader::with('ref_universitas')
-                            ->get()
-                            ->pluck('ref_universitas')
-                            ->flatten()
-                            ->pluck('kampus')
-                            ->unique()
-                            ->values();
+            $FilterKampus = Kader::with('ref_universitas')
+                                ->where('komisariat', Auth::User()->komisariat_id)
+                                ->get()
+                                ->pluck('ref_universitas')
+                                ->flatten()
+                                ->pluck('kampus')
+                                ->unique()
+                                ->values();
 
-        $FilterKomisariat = Komisariat::
-                            where('deleted_at', null)
-                            ->get();
+            $FilterKomisariat = Komisariat::
+                                where('deleted_at', null)
+                                ->get();
 
-        $FilterFakultas = Kader::with('ref_fakultas')
-                            ->get()
-                            ->pluck('ref_fakultas')
-                            ->flatten()
-                            ->pluck('fakultas')
-                            ->unique()
-                            ->values();
+            $FilterFakultas = Kader::with('ref_fakultas')
+                                ->where('komisariat', Auth::User()->komisariat_id)
+                                ->get()
+                                ->pluck('ref_fakultas')
+                                ->flatten()
+                                ->pluck('fakultas')
+                                ->unique()
+                                ->values();
 
-        $Filterprodi = Kader::with('ref_prodi')
-                            ->get()
-                            ->pluck('ref_prodi')
-                            ->flatten()
-                            ->pluck('prodi')
-                            ->unique()
-                            ->values();
+            $Filterprodi = Kader::with('ref_prodi')
+                                ->where('komisariat', Auth::User()->komisariat_id)
+                                ->get()
+                                ->pluck('ref_prodi')
+                                ->flatten()
+                                ->pluck('prodi')
+                                ->unique()
+                                ->values();
 
-        $FilterPerkaderan = Kader::with('ref_perkaderan')
-                            ->get()
-                            ->pluck('ref_perkaderan')
-                            ->flatten()
-                            ->pluck('kegiatan_perkaderan')
-                            ->unique()
-                            ->values();
+            $FilterPerkaderan = Kader::with('ref_perkaderan')
+                                ->where('komisariat', Auth::User()->komisariat_id)
+                                ->get()
+                                ->pluck('ref_perkaderan')
+                                ->flatten()
+                                ->pluck('kegiatan_perkaderan')
+                                ->unique()
+                                ->values();
 
-        $FilterPerkaderanPimpinan = Kader::with('ref_pimpinan')
-                            ->get()
-                            ->pluck('ref_pimpinan')
-                            ->flatten()
-                            ->pluck('kegiatan_pimpinan')
-                            ->unique()
-                            ->values();
+            $FilterPerkaderanPimpinan = Kader::with('ref_pimpinan')
+                                ->where('komisariat', Auth::User()->komisariat_id)
+                                ->get()
+                                ->pluck('ref_pimpinan')
+                                ->flatten()
+                                ->pluck('kegiatan_pimpinan')
+                                ->unique()
+                                ->values();
+
+        } else if (session('role_id')==2 || session('role_id')==1 ) {
+            $FilterCabang = Kader::with('ref_universitas')
+                                ->get()
+                                ->pluck('ref_universitas')
+                                ->flatten()
+                                ->pluck('kampus')
+                                ->unique()
+                                ->values();
+
+            $FilterKampus = Kader::with('ref_universitas')
+                                ->get()
+                                ->pluck('ref_universitas')
+                                ->flatten()
+                                ->pluck('kampus')
+                                ->unique()
+                                ->values();
+
+            $FilterKomisariat = Komisariat::
+                                where('deleted_at', null)
+                                ->get();
+
+            $FilterFakultas = Kader::with('ref_fakultas')
+                                ->get()
+                                ->pluck('ref_fakultas')
+                                ->flatten()
+                                ->pluck('fakultas')
+                                ->unique()
+                                ->values();
+
+            $Filterprodi = Kader::with('ref_prodi')
+                                ->get()
+                                ->pluck('ref_prodi')
+                                ->flatten()
+                                ->pluck('prodi')
+                                ->unique()
+                                ->values();
+
+            $FilterPerkaderan = Kader::with('ref_perkaderan')
+                                ->get()
+                                ->pluck('ref_perkaderan')
+                                ->flatten()
+                                ->pluck('kegiatan_perkaderan')
+                                ->unique()
+                                ->values();
+
+            $FilterPerkaderanPimpinan = Kader::with('ref_pimpinan')
+                                ->get()
+                                ->pluck('ref_pimpinan')
+                                ->flatten()
+                                ->pluck('kegiatan_pimpinan')
+                                ->unique()
+                                ->values();
+        }
 
 
         $user = Auth::user();
